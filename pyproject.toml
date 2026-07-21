@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geoscape-sphinx-theme"
+version = "1.0.0"
+description = "Shadcn-inspired Geoscape documentation theme for Sphinx (inherits from alabaster)."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Geoscape" }]
+dependencies = [
+    "sphinx>=4.0",
+    "alabaster>=0.7.12",
+]
+
+[project.entry-points."sphinx.html_themes"]
+geoscape = "geoscape_sphinx_theme"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+geoscape_sphinx_theme = [
+    "theme/geoscape/*.*",
+    "theme/geoscape/static/*",
+]

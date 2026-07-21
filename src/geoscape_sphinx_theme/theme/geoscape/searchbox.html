@@ -1,0 +1,23 @@
+{#-
+  Custom quick-search box (overrides basic/searchbox.html).
+  - Own divided section with an uppercase label matching the nav headings
+  - Input with a submit button attached flush to its right edge
+  - No placeholder text
+-#}
+{%- if pagename != "search" and builder != "singlehtml" %}
+<search id="searchbox" class="gs-search-section" style="display: none" role="search">
+  <p class="gs-search__label" id="searchlabel">{{ _('Search') }}</p>
+  <div class="searchformwrapper">
+    <form class="search gs-search" action="{{ pathto('search') }}" method="get">
+      <input type="text" name="q"
+             aria-labelledby="searchlabel"
+             autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <button type="submit" class="gs-search__submit" aria-label="{{ _('Search') }}" title="{{ _('Search') }}">
+        {#- lucide: search -#}
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      </button>
+    </form>
+  </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+{%- endif %}

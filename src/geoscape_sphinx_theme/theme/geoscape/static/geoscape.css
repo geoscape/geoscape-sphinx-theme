@@ -1,0 +1,1473 @@
+/* ==========================================================================
+   Design Tokens
+   ========================================================================== */
+
+:root {
+  /* Brand */
+  --primary: oklch(0.5424 0.1883 258.91);
+  --primary-hover: oklch(0.45 0.18 258.91);
+  --ring-focus: oklch(0.5424 0.1883 258.91 / 0.35);   /* focus glow */
+
+  /* Surfaces (hub-aligned: stone-tinted, low-contrast) */
+  --bg: oklch(0.98 0 0);
+  --bg-subtle: oklch(0.97 0.001 106.424);   /* hub --muted */
+  --bg-hover: oklch(0.955 0.001 106.424);
+  --card: oklch(1 0 0);                       /* hub --card */
+  --nav-bg: oklch(0.98 0 0);
+  --nav-text: oklch(0.147 0.004 49.25);
+
+  /* Text */
+  --text: oklch(0.147 0.004 49.25);           /* hub --foreground */
+  --text-muted: oklch(0.553 0.013 58.071);    /* hub --muted-foreground */
+
+  /* Borders (hub-aligned: subtle, no pure black) */
+  --border: oklch(0.923 0.003 48.717);        /* hub --border */
+  --border-strong: oklch(0.86 0.004 49);
+  --border-subtle: oklch(0.94 0.003 48);
+  --ring: oklch(0.709 0.01 56.259);           /* hub --ring */
+
+  /* Accents (kept dark for ::selection contrast) */
+  --accent-bg: oklch(0.147 0.004 49.25);
+  --accent-text: oklch(0.985 0 0);
+
+  /* Callout tints (subtle primary-derived surfaces).
+     Mix in oklab (not oklch) — mixing a chromatic hue with a near-neutral
+     in oklch interpolates hue the wrong way round the wheel (blue → pink). */
+  --surface-primary: color-mix(in oklab, var(--primary) 8%, var(--card));
+  --surface-primary-border: color-mix(in oklab, var(--primary) 30%, var(--border));
+
+  /* Inline code: higher-contrast surface + text than body muted grey */
+  --code-bg: oklch(0.945 0.008 265);
+  --code-text: oklch(0.40 0.14 265);          /* readable blue-slate on light */
+  --code-border: oklch(0.89 0.01 265);
+
+  /* Search / in-page match highlight (soft amber, not neon) */
+  --highlight-bg: oklch(0.9 0.11 92);
+  --highlight-text: oklch(0.32 0.06 79);
+
+  /* Typography */
+  --font-body:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  --font-heading:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  --font-mono:
+    source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+
+  /* Layout */
+  --content-padding: 30px;
+  --reading-width: 75ch;
+  --sidebar-width: 230px; /* default Alabaster width */
+  --content-max-width: 800px; /* default Alabaster content width */
+  /* Radius scale (hub --radius: 0.625rem) */
+  --radius: 0.625rem;
+  --radius-sm: calc(var(--radius) - 4px);   /* 6px */
+  --radius-md: calc(var(--radius) - 2px);   /* 8px */
+  --radius-lg: var(--radius);               /* 10px */
+
+    /* Top bar */
+    --topbar-height: 48px;
+    --topbar-bg: var(--bg);
+    --topbar-border: var(--border);
+    --topbar-z: 100;
+    --drawer-width: 280px;
+    --drawer-z: 90;
+    --backdrop-z: 80;
+}
+
+.dark-mode,
+html.dark-mode-pre {
+  --primary: oklch(0.7 0.15 258.91);
+  --primary-hover: oklch(0.8 0.12 258.91);
+  --ring-focus: oklch(0.7 0.15 258.91 / 0.4);
+
+  --bg: oklch(0.147 0.004 49.25);             /* hub dark --background */
+  --bg-subtle: oklch(0.216 0.006 56.043);     /* hub dark --card */
+  --bg-hover: oklch(0.25 0.006 56);
+  --card: oklch(0.216 0.006 56.043);
+  --nav-bg: oklch(0.147 0.004 49.25);
+  --nav-text: oklch(0.985 0.001 106.423);
+
+  --text: oklch(0.985 0.001 106.423);         /* hub dark --foreground */
+  --text-muted: oklch(0.709 0.01 56.259);     /* hub dark --muted-foreground */
+
+  --border: oklch(1 0 0 / 10%);               /* hub dark --border */
+  --border-strong: oklch(1 0 0 / 22%);
+  --border-subtle: oklch(1 0 0 / 8%);
+  --ring: oklch(0.553 0.013 58.071);
+
+  --accent-bg: oklch(0.985 0.001 106.423);
+  --accent-text: oklch(0.147 0.004 49.25);
+
+  --surface-primary: color-mix(in oklab, var(--primary) 14%, var(--card));
+  --surface-primary-border: color-mix(in oklab, var(--primary) 40%, var(--border));
+
+  /* Inline code: brighter text + slightly lifted surface for contrast */
+  --code-bg: oklch(0.27 0.02 265);
+  --code-text: oklch(0.86 0.11 255);          /* light blue on dark */
+  --code-border: oklch(1 0 0 / 12%);
+
+  /* Search / in-page match highlight (deeper amber for dark bg) */
+  --highlight-bg: oklch(0.62 0.12 84);
+  --highlight-text: oklch(0.16 0.02 79);
+}
+
+/* ==========================================================================
+   Base & Typography
+   ========================================================================== */
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 20px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: clamp(15px, 0.5vw + 14px, 17px);
+  line-height: 1.6;
+  background-color: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+p {
+  margin: 0 0 1em 0;
+  max-width: var(--reading-width);
+}
+
+::selection {
+  background-color: var(--accent-bg);
+  color: var(--accent-text);
+}
+
+/* ==========================================================================
+   Layout — Sidebar & Content Widths
+   ========================================================================== */
+
+/* Alabaster / classic Sphinx layout */
+div.document {
+  max-width: none;
+  width: 100%;
+}
+
+div.documentwrapper {
+  float: left;
+  width: 100%;
+}
+
+div.bodywrapper {
+  margin: 0 0 0 var(--sidebar-width);
+}
+
+div.sphinxsidebar {
+  width: var(--sidebar-width);
+}
+
+div.sphinxsidebarwrapper {
+  width: var(--sidebar-width);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+div.body {
+  max-width: var(--content-max-width);
+}
+
+/* RTD theme layout (in case theme switches) */
+.wy-nav-side {
+  width: var(--sidebar-width);
+}
+
+.wy-side-scroll {
+  width: calc(var(--sidebar-width) + 20px);
+}
+
+.wy-nav-content-wrap {
+  margin-left: var(--sidebar-width);
+}
+
+.wy-nav-content {
+  max-width: var(--content-max-width);
+}
+
+/* ==========================================================================
+   Links
+   ========================================================================== */
+
+a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+
+a:hover {
+  color: var(--primary-hover);
+  text-decoration-thickness: 2px;
+}
+
+/* In-content links: cleaner shadcn treatment — colored, underline on hover */
+div.body a {
+  text-decoration: none;
+  text-decoration-color: color-mix(in oklch, var(--primary) 40%, transparent);
+}
+
+div.body a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+}
+
+a:visited {
+  color: var(--primary);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Body Content
+   ========================================================================== */
+
+div.body {
+  background-color: var(--bg);
+  color: var(--text);
+  padding: 0 var(--content-padding);
+}
+
+div.body img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Alabaster's mobile rule (max-width: 875px) zeroes `ul { margin-left }` for
+   top-level lists, leaving content bullets flush against the edge with no
+   indent. Restore a sensible indent for content lists at narrow widths.
+   Scoped to div.body so sidebar/toctree lists are unaffected. */
+@media (max-width: 875px) {
+  div.body ul,
+  div.body ol {
+    margin-left: 1.5rem;
+  }
+}
+
+blockquote {
+  border-left: 3px solid var(--border-strong);
+  margin: 1em 0;
+  padding: 0.5em 1em;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Table-of-contents / topic boxes (e.g. page contents directive):
+   soft card instead of a hard black-bordered box. */
+div.topic,
+nav.contents,
+div.contents {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  margin: 1.5em 0;
+}
+
+div.topic p.topic-title,
+nav.contents p.topic-title,
+div.contents p.topic-title {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 0.5rem 0;
+}
+
+/* ==========================================================================
+   Headings
+   ========================================================================== */
+
+div.body h1,
+div.body h2,
+div.body h3,
+div.body h4,
+div.body h5,
+div.body h6 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  margin: 2em 0 0.5em 0;
+  padding: 0;
+  line-height: 1.25;
+}
+
+div.body h1 {
+  margin-top: 0;
+  padding-top: 0;
+  font-size: 220%;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.3em;
+}
+
+div.body h2 {
+  font-size: 165%;
+  letter-spacing: -0.015em;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.2em;
+}
+
+div.body h3 {
+  font-size: 150%;
+}
+div.body h4 {
+  font-size: 130%;
+}
+div.body h5 {
+  font-size: 100%;
+}
+div.body h6 {
+  font-size: 100%;
+}
+
+/* Heading text is wrapped in <a class="toc-backref"> (a link back to the
+   page ToC). Don't paint it like a body link — it should read as a heading. */
+div.body h1 .toc-backref,
+div.body h2 .toc-backref,
+div.body h3 .toc-backref,
+div.body h4 .toc-backref,
+div.body h5 .toc-backref,
+div.body h6 .toc-backref {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* The ¶ anchor permalink: hidden until the heading is hovered. Sized to match
+   the heading text and never styled as a hyperlink (no underline, ever). */
+a.headerlink {
+  font-size: inherit;
+  font-weight: inherit;
+  color: var(--text-muted);
+  opacity: 0;
+  margin-left: 0.35em;
+  text-decoration: none !important;
+  transition: opacity 0.12s ease, color 0.12s ease;
+}
+
+h1:hover > a.headerlink,
+h2:hover > a.headerlink,
+h3:hover > a.headerlink,
+h4:hover > a.headerlink,
+h5:hover > a.headerlink,
+h6:hover > a.headerlink,
+a.headerlink:focus-visible {
+  opacity: 0.5;
+}
+
+a.headerlink:hover {
+  color: var(--primary);
+  opacity: 1;
+}
+
+/* ==========================================================================
+   Sidebar / Nav
+   ========================================================================== */
+
+div.sphinxsidebar {
+  overflow-y: auto;
+  max-height: 100vh;
+  background-color: var(--nav-bg);
+  color: var(--nav-text);
+}
+
+div.sphinxsidebar h3,
+div.sphinxsidebar h4 {
+  font-family: var(--font-heading);
+  color: var(--nav-text);
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 5px 0;
+  padding: 0;
+}
+
+div.sphinxsidebar p,
+div.sphinxsidebar ul,
+div.sphinxsidebar li,
+div.sphinxsidebar a {
+  color: var(--nav-text);
+}
+
+div.sphinxsidebar a {
+  text-decoration: none;
+}
+
+div.sphinxsidebar a:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+div.sphinxsidebar input {
+  border: 1px solid var(--border);
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 1em;
+  padding: 4px 6px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+div.sphinxsidebar a.current {
+  font-weight: bold;
+  color: var(--primary);
+}
+
+/* ==========================================================================
+   Navigation tree (custom navigation.html)
+   ========================================================================== */
+
+.gs-nav {
+  margin-top: 0.5rem;
+}
+
+/* Out-specify alabaster's `div.sphinxsidebar a { border-bottom: dotted }` */
+div.sphinxsidebar .gs-nav__global a,
+div.sphinxsidebar .gs-nav__local a,
+div.sphinxsidebar .gs-nav__extra a {
+  border-bottom: 0;
+}
+
+.gs-nav__heading {
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 0.5rem 0;
+  padding: 0;
+}
+
+/* First heading ("Documentation") sits directly under the site title */
+.gs-nav > .gs-nav__heading:first-child {
+  margin-top: 0;
+}
+
+/* Prefixed with div.sphinxsidebar to out-specify alabaster's
+   `div.sphinxsidebar p { margin: 10px 0 }`, so this separator matches the
+   external-links separator exactly (same margin-top + padding-top). */
+div.sphinxsidebar .gs-nav__heading--local {
+  margin-top: 1.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+/* Reset Sphinx's default toctree list chrome.
+   Alabaster sets list-style:square on nested ul AND li, so reset both. */
+.gs-nav__global ul,
+.gs-nav__local ul,
+.gs-nav__global li,
+.gs-nav__local li {
+  list-style: none !important;
+  margin: 0;
+  padding: 0;
+}
+
+.gs-nav__global li,
+.gs-nav__local li {
+  display: block;
+}
+
+/* Links render as full-width rows with a hover/active pill.
+   Alabaster adds a dotted border-bottom to sidebar links — remove it. */
+.gs-nav__global a,
+.gs-nav__local a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--nav-text);
+  line-height: 1.35;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.gs-nav__global a:hover,
+.gs-nav__local a:hover {
+  background-color: var(--bg-hover);
+  color: var(--text);
+  text-decoration: none;
+}
+
+/* Sphinx injects a <p class="caption">Contents</p> that duplicates our
+   own "Documentation" heading — hide it. */
+.gs-nav__global .caption {
+  display: none;
+}
+
+/* Top-level entries read as section groups: slightly larger, weightier,
+   with breathing room above each group.
+   Match direct-child <li> regardless of class — Sphinx drops the
+   `toctree-l1` class from the current page's entry on some pages (e.g. the
+   bibliography/References page), which otherwise leaves it undersized. */
+/* Out-specify alabaster's `div.sphinxsidebar ul li.toctree-l1 > a {120%}`
+   so ALL top-level links match — including the current page's entry, which
+   Sphinx emits without the toctree-l1 class (e.g. References). */
+div.sphinxsidebar .gs-nav__global > div > ul > li > a,
+div.sphinxsidebar .gs-nav__global > ul > li > a {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-top: 0.35rem;
+}
+
+.gs-nav__global > div > ul > li + li,
+.gs-nav__global > ul > li + li {
+  margin-top: 0.15rem;
+}
+
+/* Nesting indentation per level */
+.gs-nav__global .toctree-l2 a { padding-left: 1.4rem; font-size: 0.92em; font-weight: 400; }
+.gs-nav__global .toctree-l3 a { padding-left: 2.2rem; font-size: 0.9em; }
+.gs-nav__global .toctree-l4 a { padding-left: 3.0rem; font-size: 0.88em; }
+
+/* Nested groups sit tight under their parent, with a subtle guide line */
+.gs-nav__global li.toctree-l1 > ul,
+.gs-nav__global li.toctree-l2 > ul {
+  margin-left: 0.7rem;
+  border-left: 1px solid var(--border);
+}
+
+/* Active page: filled pill + left accent bar */
+.gs-nav__global a.current,
+.gs-nav__global li.current > a {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.gs-nav__global li.current.toctree-l1 > a,
+.gs-nav__global a.current {
+  background-color: color-mix(in oklch, var(--primary) 12%, transparent);
+}
+
+/* Current-branch section headers stay readable but not fully highlighted */
+.gs-nav__global li.current > a {
+  background-color: color-mix(in oklch, var(--primary) 6%, transparent);
+}
+
+/* Local "On this page" toc: lighter weight, thin marker */
+.gs-nav__local {
+  font-size: 0.9em;
+}
+
+.gs-nav__local a {
+  color: var(--text-muted);
+  border-left: 2px solid transparent;
+  border-radius: 0;
+  padding-left: 0.6rem;
+}
+
+.gs-nav__local a:hover {
+  background-color: transparent;
+  color: var(--text);
+  border-left-color: var(--border-strong);
+}
+
+.gs-nav__local li.current > a,
+.gs-nav__local a.current {
+  color: var(--primary);
+  border-left-color: var(--primary);
+  background-color: transparent;
+}
+
+/* External links list. No "Links" heading — a top border + spacing
+   separates it from the nav above, matching the "On this page" separator
+   (1.75rem margin-top + 1rem padding-top). Out-specify alabaster's
+   `div.sphinxsidebar ul { margin: 10px 0 }`. */
+div.sphinxsidebar .gs-nav__extra {
+  list-style: none;
+  margin: 1.75rem 0 0 0;
+  padding: 1rem 0 0 0;
+  border-top: 1px solid var(--border);
+}
+
+.gs-nav__extra li {
+  margin: 0;
+}
+
+.gs-nav__extra a {
+  display: flex;
+  align-items: center;
+  gap: 0.55em;
+  padding: 0.3rem 0.6rem;
+  color: var(--nav-text);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  transition: color 0.12s ease, background-color 0.12s ease;
+}
+
+.gs-nav__extra a:hover {
+  background-color: var(--bg-hover);
+  color: var(--primary);
+}
+
+/* Label stays on one line; the icon never shrinks or wraps under it */
+.gs-nav__extra-label {
+  white-space: nowrap;
+}
+
+/* Leading icon: muted by default, inherits link colour on hover */
+.gs-nav__icon {
+  flex: 0 0 auto;
+  color: var(--text-muted);
+  transition: color 0.12s ease;
+}
+
+.gs-nav__extra a:hover .gs-nav__icon {
+  color: var(--primary);
+}
+
+/* ==========================================================================
+   Quick Search
+   ========================================================================== */
+
+/* Own section, divided from the links above (matches other separators) */
+div.sphinxsidebar .gs-search-section {
+  display: block;
+  margin-top: 1.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+/* Subtle label to match nav headings (replaces the big <h3>) */
+.gs-search__label {
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 0.5rem 0;
+  padding: 0;
+}
+
+/* Input + button form one connected control (button attached flush right) */
+.gs-search {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+/* Out-specify alabaster's `div.sphinxsidebar input { ... }` */
+div.sphinxsidebar .gs-search input[type="text"] {
+  flex: 1 1 auto;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0.5rem 0.65rem !important;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--text);
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-right: 0;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);   /* left corners only */
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+div.sphinxsidebar .gs-search input[type="text"]:focus,
+div.sphinxsidebar .gs-search input[type="text"]:focus-visible {
+  outline: none !important;
+  border-color: var(--primary) !important;
+  z-index: 1;
+  position: relative;
+  box-shadow: 0 0 0 3px var(--ring-focus) !important;
+}
+
+/* Attached icon-only submit button (shadcn primary) */
+div.sphinxsidebar .gs-search__submit {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  padding: 0;
+  color: var(--text-muted);
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-left: 0;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;   /* right corners only */
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+div.sphinxsidebar .gs-search__submit:hover {
+  background-color: var(--bg-hover);
+  color: var(--text);
+}
+
+div.sphinxsidebar .gs-search__submit:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* --- Search results page (search.html) ------------------------------------
+   Style the built-in results-page form + result list to match the theme. */
+div.body form[action=""] {
+  display: flex;
+  align-items: stretch;   /* input + button share the same height */
+  gap: 0;
+  flex-wrap: wrap;
+  margin: 1rem 0 1.5rem 0;
+}
+
+div.body form[action=""] input[type="text"] {
+  flex: 1 1 240px;
+  max-width: 360px;
+  box-sizing: border-box;
+  padding: 0.55rem 0.7rem;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--text);
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-right: 0;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);   /* left corners only */
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+div.body form[action=""] input[type="text"]:focus {
+  outline: none;
+  border-color: var(--primary);
+  z-index: 1;
+  position: relative;
+  box-shadow: 0 0 0 3px var(--ring-focus);
+}
+
+/* Submit button attached flush to the input's right edge */
+div.body form[action=""] input[type="submit"] {
+  padding: 0.55rem 1.1rem;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text);
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;   /* right corners only */
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+div.body form[action=""] input[type="submit"]:hover {
+  background-color: var(--bg-hover);
+}
+
+/* Keep the "searching…" progress text off the attached button */
+div.body form[action=""] #search-progress {
+  margin-left: 0.6rem;
+}
+
+/* Result list: card-like rows */
+ul.search {
+  list-style: none;
+  margin: 1rem 0 0 0;
+  padding: 0;
+}
+
+ul.search li {
+  margin: 0 0 0.5rem 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background-color: var(--card);
+  /* basic/alabaster sets a file.png bullet-icon background on each result;
+     remove it. */
+  background-image: none;
+}
+
+ul.search li > a {
+  font-weight: 600;
+  font-size: 1.02em;
+}
+
+ul.search li p.context {
+  margin: 0.35rem 0 0 0;
+  color: var(--text-muted);
+  font-size: 0.9em;
+}
+
+/* Search-term highlight (shared with in-page highlighting): soft amber */
+.highlighted,
+ul.search .highlighted {
+  background-color: var(--highlight-bg);
+  color: var(--highlight-text);
+  border-radius: 3px;
+  padding: 0 2px;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Code
+   ========================================================================== */
+
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  line-height: 1.6;
+  background-color: var(--bg-subtle);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+}
+
+/* .xref suffixes out-specify alabaster's `tt.xref, code.xref, a tt` rules */
+code,
+tt,
+code.xref,
+tt.xref,
+a code,
+a tt {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background-color: var(--code-bg);
+  color: var(--code-text);
+  padding: 0.15em 0.4em;
+  border: 1px solid var(--code-border);
+  border-radius: var(--radius-sm);
+}
+
+/* Code inside the code block, or inside headings/links, inherits its
+   surroundings rather than the inline-code chip styling. */
+pre code {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+}
+
+h1 code, h2 code, h3 code, h4 code, h5 code, h6 code {
+  color: inherit;
+}
+
+/* ==========================================================================
+   Tables
+   ========================================================================== */
+
+table.docutils {
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 1.5em 0;
+  width: 100%;
+  border: 1px solid var(--border);
+}
+
+th {
+  text-align: left;
+  color: var(--accent-text);
+  background-color: var(--accent-bg);
+  padding: 10px 14px;
+}
+
+tr {
+  text-align: left;
+}
+
+td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+tr:last-child td {
+  border-bottom: 0;
+}
+
+tr:hover td {
+  background-color: var(--bg-hover);
+}
+
+table.docutils td {
+  white-space: normal;
+}
+
+table.docutils td p {
+  font-size: 90%;
+  margin: 0;
+}
+
+.wy-table-responsive table td,
+.wy-table-responsive table th {
+  white-space: inherit;
+}
+
+/* ==========================================================================
+   Admonitions
+   ========================================================================== */
+
+div.admonition {
+  border: 1px solid var(--surface-primary-border);
+  border-left: 3px solid var(--primary);
+  background-color: var(--surface-primary);
+  color: var(--text);
+  padding: 14px 16px;
+  margin: 20px 0;
+  border-radius: var(--radius-lg);
+}
+
+div.admonition > .admonition-title {
+  background-color: transparent;
+  color: var(--primary);
+  padding: 0;
+  margin: 0;
+}
+
+div.admonition p.admonition-title {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.95em;
+  letter-spacing: 0.01em;
+  margin: 0 0 6px 0;
+  padding: 0;
+  line-height: 1.3;
+}
+
+/* Body text sits flush under the title */
+div.admonition > p:last-child {
+  margin-bottom: 0;
+}
+
+div.admonition-standard,
+div.admonition-disclaimer {
+  display: none;
+}
+
+/* ==========================================================================
+   Glossary
+   ========================================================================== */
+
+dl.glossary {
+  margin-left: 30px;
+  font-size: 0.9em;
+}
+
+dl.glossary dt {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  margin-top: 12px;
+}
+
+dl.glossary dd {
+  margin-left: 25px;
+  margin-bottom: 10px;
+}
+
+/* ==========================================================================
+   Responsive — Sidebar + Content scale together
+   ========================================================================== */
+
+/* Extra small phones (<480px) — sidebar hidden/stacked by theme */
+@media (max-width: 480px) {
+  :root {
+    --content-padding: 12px;
+    --content-max-width: 100%;
+  }
+
+  div.bodywrapper {
+    margin-left: 0;
+  }
+
+  div.body h1 {
+    font-size: 180%;
+  }
+  div.body h2 {
+    font-size: 145%;
+  }
+  div.body h3 {
+    font-size: 125%;
+  }
+
+  pre {
+    font-size: 0.8em;
+    padding: 8px 10px;
+  }
+
+  table.docutils {
+    font-size: 0.85em;
+  }
+}
+
+/* Phones / small tablets (481–768px) — sidebar still collapsed by theme */
+@media (min-width: 481px) and (max-width: 768px) {
+  :root {
+    --content-padding: 18px;
+    --content-max-width: 100%;
+  }
+
+  div.bodywrapper {
+    margin-left: 0;
+  }
+
+  div.body h1 {
+    font-size: 200%;
+  }
+  div.body h2 {
+    font-size: 160%;
+  }
+  div.body h3 {
+    font-size: 135%;
+  }
+
+  pre {
+    font-size: 0.85em;
+    padding: 10px 12px;
+  }
+
+  table.docutils {
+    font-size: 0.9em;
+  }
+}
+
+/* Tablets (769–1024px) — sidebar reappears, modest widths */
+@media (min-width: 769px) and (max-width: 1024px) {
+  :root {
+    --content-padding: 24px;
+    --sidebar-width: 240px;
+    --content-max-width: 720px;
+  }
+
+  div.body h1 {
+    font-size: 220%;
+  }
+  div.body h2 {
+    font-size: 170%;
+  }
+}
+
+/* Small laptops (1025–1280px) */
+@media (min-width: 1025px) and (max-width: 1280px) {
+  :root {
+    --content-padding: 30px;
+    --sidebar-width: 280px;
+    --content-max-width: 880px;
+    --reading-width: 72ch;
+  }
+}
+
+/* Standard laptops (1281–1440px) */
+@media (min-width: 1281px) and (max-width: 1440px) {
+  :root {
+    --content-padding: 40px;
+    --sidebar-width: 320px;
+    --content-max-width: 1000px;
+    --reading-width: 75ch;
+  }
+
+  div.body h1 {
+    font-size: 250%;
+  }
+  div.body h2 {
+    font-size: 185%;
+  }
+}
+
+/* Large desktops (1441–1920px) */
+@media (min-width: 1441px) and (max-width: 1920px) {
+  :root {
+    --content-padding: 56px;
+    --sidebar-width: 340px;
+    --content-max-width: 1150px;
+    --reading-width: 80ch;
+  }
+
+  body {
+    font-size: 18px;
+  }
+
+  div.body h1 {
+    font-size: 260%;
+  }
+  div.body h2 {
+    font-size: 195%;
+  }
+  div.body h3 {
+    font-size: 160%;
+  }
+}
+
+/* Ultra-wide (1921px+) */
+@media (min-width: 1921px) {
+  :root {
+    --content-padding: 64px;
+    --sidebar-width: 360px;
+    --content-max-width: 1300px;
+    --reading-width: 85ch;
+  }
+
+  body {
+    font-size: 18px;
+  }
+}
+
+/* ==========================================================================
+   FOUC Bridge — inline <head> script sets html.dark-mode-pre before <body>
+   exists. The dark tokens themselves come from the `.dark-mode,
+   html.dark-mode-pre` rule above (single source of truth — no drift). Here we
+   just paint the root element so the very first frame is already dark.
+   ========================================================================== */
+html.dark-mode-pre {
+    background-color: var(--bg);
+    color: var(--text);
+}
+
+/* ==========================================================================
+   Top Bar
+   ========================================================================== */
+body {
+    padding-top: var(--topbar-height);
+}
+
+.gs-topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--topbar-height);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 0 16px;
+    background-color: var(--bg);
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    z-index: var(--topbar-z);
+}
+
+.gs-nav-toggle { margin-right: auto; }
+
+/* Override alabaster's white documentwrapper/sphinxsidebar backgrounds at narrow widths */
+div.document,
+div.documentwrapper,
+div.bodywrapper {
+    background-color: var(--bg);
+    color: var(--text);
+}
+
+/* Push alabaster's desktop fixed sidebar below the topbar */
+@media (min-width: 941px) {
+    div.sphinxsidebar {
+        top: var(--topbar-height) !important;
+        max-height: calc(100vh - var(--topbar-height));
+    }
+}
+
+/* Below the alabaster breakpoint (940px), reclaim the sidebar gutter so content uses full width */
+@media (max-width: 940px) {
+    div.bodywrapper,
+    div.documentwrapper {
+        margin-left: 0 !important;
+    }
+    div.body {
+        max-width: 100%;
+    }
+}
+
+.gs-topbar button {
+    background-color: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.9em;
+    padding: 6px 10px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    line-height: 1;
+}
+
+.gs-topbar button:hover {
+    background-color: var(--bg-hover);
+}
+
+.gs-topbar button:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Hamburger */
+.gs-nav-toggle {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+}
+
+.gs-nav-toggle__bar {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background-color: var(--text);
+}
+
+@media (min-width: 941px) {
+    .gs-nav-toggle { display: none; }
+}
+
+/* Theme toggle */
+.gs-theme-toggle {
+    min-width: 70px;
+    text-align: center;
+}
+
+@media print {
+    .gs-topbar { display: none; }
+}
+
+/* ==========================================================================
+   Related Bar (alabaster prev/next nav)
+   ========================================================================== */
+div.related {
+    box-sizing: border-box;
+    /* flex collapses the stray "&nbsp;" text node alabaster emits before
+       <nav>, which otherwise adds a blank line and inflates the bar height */
+    display: flex;
+    align-items: center;
+    background-color: var(--bg-subtle);
+    color: var(--text);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 8px var(--content-padding);
+    font-size: 0.9em;
+    overflow: hidden;
+}
+
+div.related.top {
+    margin-bottom: 1.5em;
+}
+
+div.related.bottom {
+    margin-top: 2em;
+}
+
+div.related nav#rellinks {
+    width: 100%;
+}
+
+div.related ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Order prev/next by SEMANTICS, not DOM position. Sphinx may emit only a
+   prev, only a next, or both — and a lone <li> is both first- and
+   last-child, so position-based rules mis-place it. Key off the link's
+   title ("Previous document" / "Next document") instead. */
+div.related li:has(a[title="Next document"]) {
+    margin-left: auto;   /* next always hugs the right edge */
+}
+
+div.related li {
+    margin: 0;
+    /* Hide the raw ←/→ text nodes that sit directly in the <li>;
+       we render our own arrows via pseudo-elements on the <a>. */
+    font-size: 0;
+}
+
+/* Simple text links (not buttons): coloured, arrow glyph, underline on hover */
+div.related a {
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    color: var(--primary);
+    font-weight: 500;
+    text-decoration: none;
+    padding: 2px 0;
+}
+
+div.related a:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* Direction glyphs keyed off link semantics (not DOM position) */
+div.related a[title="Previous document"]::before {
+    content: "←";
+    font-weight: 400;
+}
+
+div.related a[title="Next document"]::after {
+    content: "→";
+    font-weight: 400;
+}
+
+/* ==========================================================================
+   Mobile Drawer
+   ========================================================================== */
+.gs-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: var(--backdrop-z);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+body[data-nav-open] .gs-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+body[data-nav-open] {
+    overflow: hidden;
+}
+
+@media (max-width: 940px) {
+    div.sphinxsidebar {
+        position: fixed;
+        top: var(--topbar-height);
+        left: -100%;
+        width: var(--drawer-width);
+        max-width: 85vw;
+        height: calc(100vh - var(--topbar-height));
+        max-height: calc(100vh - var(--topbar-height));
+        background-color: var(--bg);
+        color: var(--text);
+        border-right: 1px solid var(--border);
+        padding: 16px;
+        overflow-y: auto;
+        z-index: var(--drawer-z);
+        transition: left 0.2s ease;
+        margin: 0;
+    }
+
+    body[data-nav-open] div.sphinxsidebar {
+        left: 0;
+    }
+
+    .gs-backdrop {
+        top: var(--topbar-height);
+    }
+}
+
+/* ==========================================================================
+   Pygments syntax highlighting — dark mode overrides
+   ========================================================================== */
+body.dark-mode div.highlight,
+body.dark-mode pre {
+    background-color: #161b22;
+    color: #e6edf3;
+}
+
+body.dark-mode code,
+body.dark-mode tt,
+body.dark-mode code.xref,
+body.dark-mode tt.xref,
+body.dark-mode a code,
+body.dark-mode a tt {
+    background-color: var(--code-bg);
+    color: var(--code-text);
+    border: 1px solid var(--code-border);
+}
+
+body.dark-mode pre code {
+    color: inherit;
+}
+
+body.dark-mode h1 code, body.dark-mode h2 code, body.dark-mode h3 code,
+body.dark-mode h4 code, body.dark-mode h5 code, body.dark-mode h6 code {
+    color: inherit;
+}
+
+body.dark-mode pre code {
+    background: none;
+    border: none;
+}
+
+/* Pygments token classes */
+body.dark-mode .highlight .c,
+body.dark-mode .highlight .c1,
+body.dark-mode .highlight .cm,
+body.dark-mode .highlight .cs,
+body.dark-mode .highlight .cp { color: #8b949e; font-style: italic; }      /* comments */
+
+body.dark-mode .highlight .k,
+body.dark-mode .highlight .kc,
+body.dark-mode .highlight .kd,
+body.dark-mode .highlight .kn,
+body.dark-mode .highlight .kp,
+body.dark-mode .highlight .kr,
+body.dark-mode .highlight .kt { color: #ff7b72; }                          /* keywords */
+
+body.dark-mode .highlight .s,
+body.dark-mode .highlight .s1,
+body.dark-mode .highlight .s2,
+body.dark-mode .highlight .sb,
+body.dark-mode .highlight .sc,
+body.dark-mode .highlight .sd,
+body.dark-mode .highlight .se,
+body.dark-mode .highlight .sh,
+body.dark-mode .highlight .si,
+body.dark-mode .highlight .sx,
+body.dark-mode .highlight .sr,
+body.dark-mode .highlight .ss { color: #a5d6ff; }                          /* strings */
+
+body.dark-mode .highlight .m,
+body.dark-mode .highlight .mf,
+body.dark-mode .highlight .mh,
+body.dark-mode .highlight .mi,
+body.dark-mode .highlight .mo,
+body.dark-mode .highlight .il { color: #79c0ff; }                          /* numbers */
+
+body.dark-mode .highlight .nb,
+body.dark-mode .highlight .bp { color: #79c0ff; }                          /* builtins */
+
+body.dark-mode .highlight .nf,
+body.dark-mode .highlight .fm { color: #d2a8ff; }                          /* functions */
+
+body.dark-mode .highlight .nc,
+body.dark-mode .highlight .nn { color: #ffa657; }                          /* classes / namespaces */
+
+body.dark-mode .highlight .nd,
+body.dark-mode .highlight .ni,
+body.dark-mode .highlight .ne { color: #ffa657; }                          /* decorators / exceptions */
+
+body.dark-mode .highlight .o,
+body.dark-mode .highlight .ow { color: #ff7b72; }                          /* operators */
+
+body.dark-mode .highlight .nv,
+body.dark-mode .highlight .vc,
+body.dark-mode .highlight .vg,
+body.dark-mode .highlight .vi { color: #e6edf3; }                          /* variables */
+
+body.dark-mode .highlight,
+body.dark-mode .highlight .n,
+body.dark-mode .highlight .na,
+body.dark-mode .highlight .nl,
+body.dark-mode .highlight .no,
+body.dark-mode .highlight .nx,
+body.dark-mode .highlight .py,
+body.dark-mode .highlight .nt,
+body.dark-mode .highlight .p,
+body.dark-mode .highlight .w { color: #e6edf3; }                           /* names, punctuation, default text */
+
+body.dark-mode .highlight .err {
+    color: #ffa198;
+    background-color: transparent;
+}
+
+body.dark-mode .highlight .gh,
+body.dark-mode .highlight .gu { color: #79c0ff; font-weight: bold; }       /* generic headers */
+body.dark-mode .highlight .gd { color: #ffa198; background-color: #67060c; } /* generic deleted */
+body.dark-mode .highlight .gi { color: #aff5b4; background-color: #033a16; } /* generic inserted */
+body.dark-mode .highlight .ge { font-style: italic; }
+body.dark-mode .highlight .gs { font-weight: bold; }

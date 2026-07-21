@@ -1,0 +1,40 @@
+{#-
+  Custom sidebar navigation (overrides alabaster's navigation.html).
+  - Collapsed nested global toctree, with active-branch highlighting
+  - "On this page" local table of contents for the current document
+  - External links list with per-item icons (no "Links" heading)
+-#}
+<nav class="gs-nav" role="navigation" aria-label="Site">
+  <p class="gs-nav__heading">{{ _('Documentation') }}</p>
+  <div class="gs-nav__global">
+    {{ toctree(collapse=True, titles_only=False, maxdepth=2, includehidden=theme_sidebar_includehidden) }}
+  </div>
+
+  {%- if display_toc and toc %}
+  <p class="gs-nav__heading gs-nav__heading--local">{{ _('On this page') }}</p>
+  <div class="gs-nav__local">
+    {{ toc }}
+  </div>
+  {%- endif %}
+
+  <ul class="gs-nav__extra">
+    {%- if docs_home_url %}
+    <li>
+      <a href="{{ docs_home_url }}">
+        {#- lucide: home -#}
+        <svg class="gs-nav__icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+        <span class="gs-nav__extra-label">{{ docs_home_label | default('Geoscape Documentation') }}</span>
+      </a>
+    </li>
+    {%- endif %}
+    {%- for text, uri in theme_extra_nav_links.items() %}
+    <li>
+      <a href="{{ uri }}">
+        {#- lucide: external-link -#}
+        <svg class="gs-nav__icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+        <span class="gs-nav__extra-label">{{ text }}</span>
+      </a>
+    </li>
+    {%- endfor %}
+  </ul>
+</nav>

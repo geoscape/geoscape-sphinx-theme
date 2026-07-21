@@ -1,0 +1,43 @@
+{%- extends "alabaster/layout.html" %}
+
+{%- block extrahead %}
+{{ super() }}
+<script>
+  (function () {
+    try {
+      var stored = null;
+      try { stored = localStorage.getItem('gs-theme'); } catch (e) {}
+      var state = stored || 'auto';
+      var resolved = state;
+      if (state === 'auto') {
+        resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      document.documentElement.setAttribute('data-theme', state);
+      if (resolved === 'dark') {
+        document.documentElement.classList.add('dark-mode-pre');
+      }
+    } catch (e) {}
+  })();
+</script>
+{%- endblock %}
+
+{%- block header %}
+<header class="gs-topbar" role="banner">
+  <button type="button"
+          class="gs-nav-toggle"
+          aria-label="Open navigation"
+          aria-expanded="false"
+          aria-controls="gs-sidebar">
+    <span class="gs-nav-toggle__bar"></span>
+    <span class="gs-nav-toggle__bar"></span>
+    <span class="gs-nav-toggle__bar"></span>
+  </button>
+  <button type="button"
+          class="gs-theme-toggle"
+          aria-label="Theme: auto"
+          data-theme-state="auto">
+    <span class="gs-theme-toggle__label">Auto</span>
+  </button>
+</header>
+<div class="gs-backdrop" hidden></div>
+{%- endblock %}

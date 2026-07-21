@@ -1,0 +1,13 @@
+{#-
+  Search results page (overrides basic/search.html).
+  Only change from stock: proper-cased "Search" submit button.
+-#}
+{%- extends "basic/search.html" %}
+
+{% block searchbox %}
+  <form action="" method="get">
+    <input type="text" name="q" aria-labelledby="search-documentation" value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+    <input type="submit" value="{{ _('Search') }}" />
+    <span id="search-progress" style="padding-left: 10px"></span>
+  </form>
+{% endblock %}
