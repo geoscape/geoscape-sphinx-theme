@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geoscape-sphinx-theme"
-version = "1.0.0"
+version = "1.0.1"
 description = "Shadcn-inspired Geoscape documentation theme for Sphinx (inherits from alabaster)."
 readme = "README.md"
 requires-python = ">=3.9"

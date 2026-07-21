@@ -8,23 +8,17 @@ consuming ``conf.py`` only needs ``html_theme = "geoscape"``.
 """
 from pathlib import Path
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 _THEME_DIR = Path(__file__).parent / "theme"
 
 
 def _set_defaults(app, config):
-    """Fill in the sidebar layout and docs-home context unless the consuming
-    repo has already set its own. Runs at config-inited so repo conf.py wins."""
-    if not config.html_sidebars:
-        config.html_sidebars = {
-            "**": [
-                "about.html",
-                "navigation.html",
-                "relations.html",
-                "searchbox.html",
-            ]
-        }
+    """Provide the docs-home link defaults unless the consuming repo set its own.
+
+    The sidebar layout is declared in the theme's ``theme.conf`` (``sidebars =``),
+    which is evaluated at theme-load time and is stable across Sphinx versions —
+    more reliable than setting ``html_sidebars`` from a runtime hook."""
     config.html_context.setdefault("docs_home_url", "https://docs.geoscape.com.au")
     config.html_context.setdefault("docs_home_label", "Geoscape Documentation")
 
