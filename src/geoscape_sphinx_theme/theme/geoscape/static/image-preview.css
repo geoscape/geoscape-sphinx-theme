@@ -1,0 +1,184 @@
+/* ==========================================================================
+   Image preview (lightbox)
+
+   Companion to image-preview.js; both are only linked into the page when the
+   theme's `show_image_preview` option is on. Tokens (--card, --border, --radius-*,
+   --lightbox-z) come from geoscape.css, so light/dark switching is automatic.
+   ========================================================================== */
+
+/* Affordance on the page image itself — a pointer plus a hover lift, so it
+   reads as activatable without adding an icon overlay that would sit on top of
+   the diagram content. */
+.gs-zoomable {
+  cursor: zoom-in;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.gs-zoomable:hover {
+  box-shadow: 0 4px 16px rgb(0 0 0 / 12%);
+}
+
+/* The bare-<img> case is given role="button" + tabindex by the script, so it
+   needs its own visible focus ring; the anchor case inherits the theme's. */
+.gs-zoomable[role='button']:focus-visible,
+a.image-reference:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+.gs-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: var(--lightbox-z);
+  display: flex;
+  flex-direction: column;
+  /* Deliberately a near-opaque neutral in both themes rather than a token: a
+     light-grey scrim would wash out a screenshot's own white background, and
+     the point of the preview is to judge the image. */
+  background: rgb(0 0 0 / 88%);
+}
+
+/* `hidden` alone loses to `display: flex` — restate it. */
+.gs-lightbox[hidden] {
+  display: none;
+}
+
+/* Stop the page behind from scrolling under the modal. */
+body[data-lightbox-open] {
+  overflow: hidden;
+}
+
+.gs-lightbox__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  /* Never let a long alt text squeeze the controls out. */
+  flex: 0 0 auto;
+}
+
+.gs-lightbox__caption {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  /* One line, ellipsised: alt text on the appendix diagrams is a full graphviz
+     source dump in some cases. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gs-lightbox__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 0 0 auto;
+}
+
+.gs-lightbox__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.gs-lightbox__btn:hover:not(:disabled) {
+  background: var(--bg-hover);
+}
+
+.gs-lightbox__btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
+.gs-lightbox__btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.gs-lightbox__level {
+  min-width: 3.5em;
+  text-align: center;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums; /* so the width doesn't jitter while zooming */
+  color: var(--text-muted);
+}
+
+.gs-lightbox__stage {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  /* The scrim is clickable to dismiss, so show that it isn't the image. */
+  cursor: zoom-out;
+}
+
+/* Cursors are set on the image separately from the stage. The stage is the
+   backdrop (click to dismiss → zoom-out), but the image is not — it zooms in,
+   or pans once magnified. Without this the image inherited the backdrop's
+   zoom-out cursor and advertised an action it doesn't perform. */
+.gs-lightbox__stage[data-pannable='false'] .gs-lightbox__img {
+  cursor: zoom-in;
+}
+
+.gs-lightbox__stage[data-pannable='true'] .gs-lightbox__img {
+  cursor: grab;
+}
+
+.gs-lightbox__stage[data-panning],
+.gs-lightbox__stage[data-panning] .gs-lightbox__img {
+  cursor: grabbing;
+}
+
+.gs-lightbox__img {
+  max-width: 100%;
+  max-height: 100%;
+  /* Transform-based zoom rather than width/height: it's composited, so panning
+     a large appendix diagram stays smooth, and it doesn't reflow the stage. */
+  transform-origin: center center;
+  /* Diagrams and screenshots are the content here — don't smooth their pixels
+     away when magnified past 100%. */
+  image-rendering: -webkit-optimize-contrast;
+  /* White backing so a transparent PNG stays legible against the dark scrim. */
+  background: #fff;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* No transition while dragging, or the image lags the cursor. */
+.gs-lightbox__stage:not([data-panning]) .gs-lightbox__img {
+  transition: transform 0.12s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-zoomable,
+  .gs-lightbox__img {
+    transition: none;
+  }
+}
+
+/* On a phone the caption competes with six controls for ~340px; the controls
+   win — the alt text is already visible on the page itself. */
+@media (max-width: 560px) {
+  .gs-lightbox__caption {
+    display: none;
+  }
+}
+
+/* The preview is a screen affordance; print the page image, not the overlay. */
+@media print {
+  .gs-lightbox {
+    display: none !important;
+  }
+}

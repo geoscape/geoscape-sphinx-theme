@@ -85,6 +85,9 @@
     --drawer-width: var(--sidebar-width-mobile);
     --drawer-z: 90;
     --backdrop-z: 80;
+    /* Above the topbar: the image preview is a modal and must cover the whole
+       chrome, including the theme and sidebar buttons. */
+    --lightbox-z: 200;
 }
 
 .dark-mode,

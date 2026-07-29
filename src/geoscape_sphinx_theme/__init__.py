@@ -30,6 +30,20 @@ def _set_defaults(config):
     context.setdefault("website_label", "Geoscape Website")
 
 
+def _is_enabled(config, option, default=True):
+    """Read a boolean theme option, tolerating the string forms Sphinx passes.
+
+    Values from ``theme.conf [options]`` arrive as STRINGS, so a plain
+    ``if config.html_theme_options.get(option)`` is truthy even for ``"false"``.
+    A consumer may also set a real bool from ``conf.py``, so handle both."""
+    value = (config.html_theme_options or {}).get(option)
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() not in ("false", "0", "none", "no", "")
+
+
 def setup(app):
     app.add_html_theme("geoscape", str(_THEME_DIR / "geoscape"))
     # Apply the html_context defaults immediately rather than from a
@@ -46,6 +60,15 @@ def setup(app):
     # so add_css_file guarantees geoscape.css is linked. Also more version-robust.
     app.add_css_file("geoscape.css")
     app.add_js_file("geoscape.js")
+    # The image preview is one optional feature, so it lives in its own pair of
+    # files, linked only when enabled — a consumer who turns it off pays no
+    # parse cost (the files are still copied, as Sphinx copies all of a theme's
+    # static/ directory, but nothing references them). Registered here at
+    # `builder-inited` (see above), which is late enough that
+    # html_theme_options has been read.
+    if _is_enabled(app.config, "show_image_preview"):
+        app.add_css_file("image-preview.css")
+        app.add_js_file("image-preview.js")
     return {
         "version": __version__,
         "parallel_read_safe": True,
