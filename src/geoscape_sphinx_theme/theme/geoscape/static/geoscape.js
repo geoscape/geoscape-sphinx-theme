@@ -93,7 +93,13 @@
          which may be far wider than the container. Only the container's
          clientWidth centres the title over what's actually on screen. */
       var caption = wrap.querySelector(':scope > table > caption');
-      if (caption) caption.style.width = wrap.clientWidth + 'px';
+      if (caption) {
+        /* Only when the table is wider than the container. A table narrower
+           than the container centres its caption over itself correctly, and
+           forcing the container width there would push the title off to the
+           right of its own table. */
+        caption.style.width = scrollable ? wrap.clientWidth + 'px' : '';
+      }
     });
   }
 
@@ -133,10 +139,57 @@
       return document.body.hasAttribute('data-nav-open');
     }
 
+    /* Above the breakpoint the same button collapses the desktop sidebar
+       rather than opening the drawer — useful on table-heavy pages that want
+       the full window. Persisted like the hub's `sidebar_state` cookie so it
+       survives navigation between pages. */
+    var COLLAPSE_KEY = 'gs-sidebar-collapsed';
+
+    function isCollapsed() {
+      return document.body.hasAttribute('data-sidebar-collapsed');
+    }
+
+    function setCollapsed(collapsed) {
+      if (collapsed) {
+        document.body.setAttribute('data-sidebar-collapsed', '');
+      } else {
+        document.body.removeAttribute('data-sidebar-collapsed');
+      }
+      var t = document.querySelector('.gs-nav-toggle');
+      if (t) {
+        /* aria-expanded describes the sidebar, so on desktop it tracks the
+           collapse state and on mobile the drawer state. */
+        t.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      }
+      try { localStorage.setItem(COLLAPSE_KEY, collapsed ? '1' : '0'); } catch (e) {}
+      /* Table wrappers just changed width, so re-measure scrollability and
+         re-centre the sticky captions. */
+      syncScrollability();
+    }
+
+    /* Read on demand rather than caching once: setCollapsed() writes this key,
+       so a stale copy captured at init would be re-applied by the resize
+       handler and clobber the user's actual preference. */
+    function storedCollapsed() {
+      try { return localStorage.getItem(COLLAPSE_KEY) === '1'; } catch (e) { return false; }
+    }
+
+    if (window.innerWidth > BREAKPOINT) {
+      /* Sets aria-expanded either way: the markup ships "false" for the mobile
+         drawer, but on desktop the sidebar starts visible. */
+      setCollapsed(storedCollapsed());
+    }
+
     var navToggle = document.querySelector('.gs-nav-toggle');
     if (navToggle) {
       navToggle.addEventListener('click', function () {
-        if (isOpen()) closeDrawer(); else openDrawer();
+        if (window.innerWidth > BREAKPOINT) {
+          setCollapsed(!isCollapsed());
+        } else if (isOpen()) {
+          closeDrawer();
+        } else {
+          openDrawer();
+        }
       });
     }
 
@@ -158,7 +211,19 @@
     }
 
     window.addEventListener('resize', function () {
-      if (window.innerWidth > BREAKPOINT && isOpen()) closeDrawer();
+      if (window.innerWidth > BREAKPOINT) {
+        if (isOpen()) closeDrawer();
+        /* Re-apply the stored collapse when coming back up from mobile. Guarded
+           so an ordinary desktop resize isn't a redundant write + reflow. */
+        if (isCollapsed() !== storedCollapsed()) setCollapsed(storedCollapsed());
+      } else if (isCollapsed()) {
+        /* The collapse rules are desktop-only, but the attribute would linger
+           and `aria-expanded` would misreport the drawer. Drop it without
+           touching the stored preference — hence not setCollapsed(false). */
+        document.body.removeAttribute('data-sidebar-collapsed');
+        var t = document.querySelector('.gs-nav-toggle');
+        if (t) t.setAttribute('aria-expanded', isOpen() ? 'true' : 'false');
+      }
     });
 
     var mql = window.matchMedia('(prefers-color-scheme: dark)');

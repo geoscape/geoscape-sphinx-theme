@@ -10,7 +10,13 @@
     {{ toctree(collapse=True, titles_only=False, maxdepth=2, includehidden=theme_sidebar_includehidden) }}
   </div>
 
-  {%- if display_toc and toc %}
+  {#- Sphinx passes theme options through as STRINGS, so a plain
+      `{% if theme_show_local_toc %}` is true even for "false". Compare against
+      the falsey spellings a consumer might reasonably write in
+      html_theme_options, and treat a real bool (set programmatically) too. -#}
+  {%- set show_local_toc = theme_show_local_toc is not defined
+        or (theme_show_local_toc | string | lower) not in ['false', '0', 'none', ''] %}
+  {%- if show_local_toc and display_toc and toc %}
   <p class="gs-nav__heading gs-nav__heading--local">{{ _('On this page') }}</p>
   <div class="gs-nav__local">
     {{ toc }}
