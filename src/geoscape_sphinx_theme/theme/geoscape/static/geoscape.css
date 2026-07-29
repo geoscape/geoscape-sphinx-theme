@@ -140,6 +140,25 @@ p {
   max-width: var(--reading-width);
 }
 
+/* Alabaster sets `div.body p, div.body dd, div.body li { line-height: 1.4em }`,
+   which out-specifies the 1.6 on <body> above. Line blocks (`| foo`) aren't in
+   that selector list, so they kept inheriting 1.6 and sat a visible 3.4px per
+   line looser than the surrounding prose. Restate the theme's own leading at
+   matching specificity so every block of body copy agrees. */
+div.body p,
+div.body dd,
+div.body li,
+div.body .line-block .line {
+  line-height: 1.6;
+}
+
+/* A line block is a paragraph-like run of hard-wrapped lines, so give it the
+   same vertical rhythm as <p> rather than basic.css's symmetric 1em/1em. */
+div.body .line-block {
+  margin: 0 0 1em 0;
+  max-width: var(--reading-width);
+}
+
 ::selection {
   background-color: var(--accent-bg);
   color: var(--accent-text);
@@ -366,6 +385,10 @@ h3:hover > a.headerlink,
 h4:hover > a.headerlink,
 h5:hover > a.headerlink,
 h6:hover > a.headerlink,
+/* Table captions get a "Link to this table" headerlink too (Sphinx emits one
+   for every `.. csv-table:: NAME`). Without this it stayed at opacity 0 and
+   the anchor was unreachable by mouse. */
+caption:hover > a.headerlink,
 a.headerlink:focus-visible {
   opacity: 0.5;
 }
@@ -861,14 +884,16 @@ h1 code, h2 code, h3 code, h4 code, h5 code, h6 code {
 /* Scroll container injected by geoscape.js around every content table.
    Wide reference tables would otherwise overflow the content column and
    force the whole page to scroll sideways. */
+/* The wrapper is a pure scroll container with no outline of its own: a
+   <caption> is a child of <table> but renders outside the table's box, so a
+   border here would enclose the title row too. The border goes on the table
+   below, which puts it around the grid only — as in the PDF export. */
 .gs-table-wrap {
   position: relative;
   width: 100%;
   max-width: 100%;
   overflow-x: auto;
   margin: 1.5em 0;
-  /* Contain the table's own rounded border rather than clipping it. */
-  border-radius: var(--radius-sm);
 }
 
 .gs-table-wrap:focus-visible {
@@ -887,7 +912,15 @@ table.docutils {
   border-spacing: 0;
   margin: 1.5em 0;
   width: 100%;
+  /* Outline the grid. Alabaster puts a 1px #888 border plus a
+     `box-shadow: 2px 2px 4px #EEE` here; keep the border, drop the shadow. */
   border: 1px solid var(--border);
+  box-shadow: none;
+  /* Dense reference tables read better a step down from body copy — the hub's
+     `<Table>` sets `text-xs` for the same reason. Set on the table so bare
+     cell text scales too, not only cells docutils happens to wrap in a <p>
+     (it only emits <p> for multi-paragraph cells). */
+  font-size: 0.875rem;
 }
 
 /* Inside the scroll container the wrapper owns the vertical rhythm, and the
@@ -899,42 +932,119 @@ table.docutils {
   min-width: 100%;
 }
 
-th {
+/* Table captions (`.. csv-table:: NAME`) render as a <caption> inside the
+   table. Treated as the table's title row — centred, matching the PDF export,
+   and carrying a visible "Link to this table" anchor on hover. */
+table.docutils > caption {
+  text-align: center;
+  padding: 8px 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* On a table wider than its scroll container the caption would be centred
+   over the full table width — i.e. off to the side, or scrolled out of sight
+   entirely. Stick it to the container's left edge; geoscape.js sets the width
+   to the container's, which CSS can't express here (`width: 100%` on a
+   <caption> resolves against the table, not the scroll container). */
+.gs-table-wrap > table.docutils > caption {
+  position: sticky;
+  left: 0;
+  box-sizing: border-box;
+}
+
+/* Alabaster draws a full 1px #888 grid on `table.docutils td, th`. Reset it
+   once here, then re-add only the horizontal rules below — the hub's rows use
+   `border-b` and no vertical rules at all. */
+table.docutils th,
+table.docutils td {
+  border: 0;
+}
+
+/* Header: the dark inverted bar mirrors the PDF export's `\cellcolor{black}`
+   header, so the HTML and PDF renditions of the same appendix stay
+   recognisably the same document. */
+table.docutils th {
   text-align: left;
   color: var(--accent-text);
   background-color: var(--accent-bg);
-  padding: 10px 14px;
+  padding: 8px 12px;
 }
 
 tr {
   text-align: left;
 }
 
-td {
-  padding: 9px 14px;
-  border-bottom: 1px solid var(--border);
-}
-
-tr:last-child td {
-  border-bottom: 0;
-}
-
-tr:hover td {
-  background-color: var(--bg-hover);
-}
-
 table.docutils td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
   white-space: normal;
 }
 
-table.docutils td p {
-  font-size: 90%;
+/* Row separators only, no vertical rules — the hub uses `border-b` per row
+   and drops it on the last one so it doesn't double the container border. */
+table.docutils tr:last-child td {
+  border-bottom: 0;
+}
+
+table.docutils tbody tr:hover td {
+  background-color: var(--bg-hover);
+}
+
+table.docutils td p,
+table.docutils th p {
+  font-size: inherit;
   margin: 0;
 }
 
 .wy-table-responsive table td,
 .wy-table-responsive table th {
   white-space: inherit;
+}
+
+/* ==========================================================================
+   Footnotes
+
+   docutils 0.18+ emits `<aside class="footnote">` (older versions used a
+   <dl>/<table>, which is what alabaster styles). basic.css bridges the gap by
+   floating the `<span class="label">` left and indenting the sibling <p>, but
+   the float escapes its own <aside> — the next footnote's text starts beside
+   the previous label instead of at the margin. Lay each entry out as a flex
+   row instead, which keeps the marker on the same line without a float.
+   ========================================================================== */
+
+aside.footnote-list {
+  margin: 1.5em 0;
+}
+
+aside.footnote {
+  display: flex;
+  gap: 0.5em;
+  margin: 0.4em 0;
+  font-size: 0.9em;
+  color: var(--text-muted);
+}
+
+aside.footnote > span.label {
+  /* Out-specify basic.css's `aside.footnote > span { float: left }`. */
+  float: none;
+  flex: none;
+  color: var(--text-muted);
+}
+
+/* basic.css indents these to clear the float we just removed. */
+aside.footnote > p {
+  margin-left: 0;
+  margin-bottom: 0;
+}
+
+aside.footnote:target {
+  /* basic.css paints a #ffa block highlight; use the theme's own accent so it
+     works in dark mode too. */
+  background-color: transparent;
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
 }
 
 /* ==========================================================================

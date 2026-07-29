@@ -87,6 +87,13 @@
         wrap.removeAttribute('tabindex');
         wrap.removeAttribute('data-scrollable');
       }
+      /* The caption is `position: sticky; left: 0` (see geoscape.css) so it
+         tracks the container's left edge, but its centring still needs a
+         width, and `width: 100%` on a <caption> resolves against the table —
+         which may be far wider than the container. Only the container's
+         clientWidth centres the title over what's actually on screen. */
+      var caption = wrap.querySelector(':scope > table > caption');
+      if (caption) caption.style.width = wrap.clientWidth + 'px';
     });
   }
 
