@@ -27,7 +27,23 @@
       </a>
     </li>
     {%- endif %}
-    {%- for text, uri in theme_extra_nav_links.items() %}
+    {%- if website_url %}
+    <li>
+      <a href="{{ website_url }}">
+        {#- lucide: globe -#}
+        <svg class="gs-nav__icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+        <span class="gs-nav__extra-label">{{ website_label | default('Geoscape Website') }}</span>
+      </a>
+    </li>
+    {%- endif %}
+    {#- `extra_nav_links` defaults to an empty STRING in theme.conf, so guard
+        with `is mapping` — calling .items() on the default raises
+        UndefinedError and hard-fails the build. Also skip any entry that
+        duplicates a link the theme already rendered above: the 60+ repos not
+        yet migrated still list the website here by hand. -#}
+    {%- set rendered_urls = [docs_home_url, website_url] | select | list %}
+    {%- for text, uri in (theme_extra_nav_links if theme_extra_nav_links is mapping else {}).items() %}
+    {%- if uri not in rendered_urls %}
     <li>
       <a href="{{ uri }}">
         {#- lucide: external-link -#}
@@ -35,6 +51,7 @@
         <span class="gs-nav__extra-label">{{ text }}</span>
       </a>
     </li>
+    {%- endif %}
     {%- endfor %}
   </ul>
 </nav>

@@ -858,12 +858,45 @@ h1 code, h2 code, h3 code, h4 code, h5 code, h6 code {
    Tables
    ========================================================================== */
 
+/* Scroll container injected by geoscape.js around every content table.
+   Wide reference tables would otherwise overflow the content column and
+   force the whole page to scroll sideways. */
+.gs-table-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 1.5em 0;
+  /* Contain the table's own rounded border rather than clipping it. */
+  border-radius: var(--radius-sm);
+}
+
+.gs-table-wrap:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Hint that there is more table off to the side. Only on wrappers that
+   actually scroll — see syncScrollability() in geoscape.js. */
+.gs-table-wrap[data-scrollable] {
+  box-shadow: inset -12px 0 12px -12px oklch(0 0 0 / 0.18);
+}
+
 table.docutils {
   border-collapse: separate;
   border-spacing: 0;
   margin: 1.5em 0;
   width: 100%;
   border: 1px solid var(--border);
+}
+
+/* Inside the scroll container the wrapper owns the vertical rhythm, and the
+   table must be free to exceed the container width rather than compress to
+   it — otherwise `width: 100%` defeats the whole purpose of scrolling. */
+.gs-table-wrap > table.docutils {
+  margin: 0;
+  width: auto;
+  min-width: 100%;
 }
 
 th {

@@ -4,5 +4,15 @@ __pycache__/
 *.egg-info/
 build/
 dist/
-.venv/
+.venv*/
 venv/
+/docs/
+
+# Build output
+build_warnings.log
+
+# IDE
+.idea/
+
+# macOS
+.DS_Store

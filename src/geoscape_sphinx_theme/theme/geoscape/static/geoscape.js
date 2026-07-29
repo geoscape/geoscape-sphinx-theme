@@ -48,9 +48,54 @@
     return STATES[(i + 1) % STATES.length];
   }
 
+  /* Wrap every content table in a horizontally scrollable container.
+     Sphinx emits `<table class="docutils">` as a bare sibling of the
+     surrounding paragraphs, so there is no element for CSS `overflow-x` to
+     act on — wide reference tables (e.g. 8-column data dictionaries) simply
+     overflow the content column and force the whole page to scroll
+     sideways, dragging the sidebar and topbar off screen. Mirrors the hub
+     front-end's `<Table>`, which wraps its `<table>` in
+     `<div class="relative w-full overflow-x-auto">`. */
+  function wrapTables() {
+    var tables = document.querySelectorAll('div.body table.docutils');
+    Array.prototype.forEach.call(tables, function (table) {
+      var parent = table.parentNode;
+      if (parent && parent.classList.contains('gs-table-wrap')) return;
+      var wrap = document.createElement('div');
+      wrap.className = 'gs-table-wrap';
+      /* Only focusable when actually scrollable, so keyboard users don't
+         tab through every table on the page. Set in syncScrollability(). */
+      wrap.setAttribute('role', 'region');
+      wrap.setAttribute('aria-label', 'Table');
+      parent.insertBefore(wrap, table);
+      wrap.appendChild(table);
+    });
+    syncScrollability();
+  }
+
+  /* A wrapper is only a scroll container — and so only needs to be keyboard
+     focusable and announced — when its table genuinely overflows. Re-checked
+     on resize because the breakpoint-driven font sizes change table width. */
+  function syncScrollability() {
+    var wraps = document.querySelectorAll('.gs-table-wrap');
+    Array.prototype.forEach.call(wraps, function (wrap) {
+      var scrollable = wrap.scrollWidth > wrap.clientWidth + 1;
+      if (scrollable) {
+        wrap.setAttribute('tabindex', '0');
+        wrap.setAttribute('data-scrollable', '');
+      } else {
+        wrap.removeAttribute('tabindex');
+        wrap.removeAttribute('data-scrollable');
+      }
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     var current = readState();
     apply(current);
+
+    wrapTables();
+    window.addEventListener('resize', syncScrollability);
 
     var btn = document.querySelector('.gs-theme-toggle');
     if (btn) {

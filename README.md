@@ -76,6 +76,55 @@ template locally (a repo `_templates/navigation.html` wins over the theme's).
 - **Extra CSS**: `html_css_files = ["your-overrides.css"]` — loads after the
   theme CSS, so it wins.
 
+## Releasing (propagating a theme change)
+
+A change reaches the consuming docs sites only when a **new version** is
+published and each site is rebuilt. There are three version references and they
+must stay in sync — this is the part that's easy to get wrong:
+
+| Reference | Example | Notes |
+|-----------|---------|-------|
+| `pyproject.toml` → `version` | `1.0.2` | **Exact**, no `v` prefix (PEP 440). Never `v1`. |
+| `__init__.py` → `__version__` | `1.0.2` | Same value as pyproject. |
+| Exact git tag | `v1.0.2` | `v` prefix; points at this commit. |
+| Moving major tag | `v1` | `v` prefix; **moved** to the same commit. |
+
+**One version number** (`1.0.2`) goes in the two Python files; **two git tags**
+(`v1.0.2` and `v1`) point at the same commit. The moving `v1` tag is only a git
+pointer — it never appears in `pyproject.toml`.
+
+**Why the version bump is mandatory:** pip decides whether to reinstall by
+comparing the *version string*. If you move the `v1` tag but leave the version
+unchanged, consumers pinned to `@v1` may see "already installed" and keep serving
+the **old** theme with no error. Bumping the version forces the re-fetch.
+
+### Steps
+
+```bash
+# 1. Test the change first (no tag yet):
+scripts/test-propagation.sh ../docs_buildings_guide
+
+# 2. Bump BOTH files to the new exact version (e.g. 1.0.2):
+#    - pyproject.toml     version = "1.0.2"
+#    - __init__.py        __version__ = "1.0.2"
+#    - add a CHANGELOG.md entry
+
+# 3. Commit, tag exact + move the major tag, push:
+git commit -am "Release 1.0.2: <what changed>"
+git tag v1.0.2            # exact tag == pyproject version, with a leading v
+git tag -f v1             # move the major alias onto the same commit
+git push origin master v1.0.2
+git push -f origin v1     # force-push applies ONLY to the moving v1 tag
+
+# 4. Rebuild the consuming repos on Read the Docs (they re-run pip install and
+#    pick up the new version). At scale, trigger this via the RTD Build API
+#    rather than clicking each project.
+```
+
+Consuming repos pinned to `@v1` need no file change to adopt a release — just a
+rebuild. Repos pinned to an exact tag (`@v1.0.2`) adopt it by re-pinning
+(`scripts/migrate-repos.py` can do this in bulk).
+
 ## Compatibility
 
 - Sphinx ≥ 4.0, alabaster ≥ 0.7.12 (pulled in automatically).
