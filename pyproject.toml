@@ -6,11 +6,11 @@ build-backend = "setuptools.build_meta"
 name = "geoscape-sphinx-theme"
 # EXACT version only (PEP 440: MAJOR.MINOR.PATCH, no "v" prefix, never "v1").
 # On every release this MUST be bumped and MUST match the exact git tag:
-#   here 1.0.2   <->   git tag v1.0.2   (the moving `v1` tag also moves to it)
+#   here 1.0.3   <->   git tag v1.0.3   (the moving `v1` tag also moves to it)
 # Bumping this is what makes pip re-install the theme on consumers — a moved
 # git tag alone is NOT enough. Also update __version__ in
 # src/geoscape_sphinx_theme/__init__.py to the same value. See README "Releasing".
-version = "1.0.2"
+version = "1.0.3"
 description = "Shadcn-inspired Geoscape documentation theme for Sphinx (inherits from alabaster)."
 readme = "README.md"
 requires-python = ">=3.9"

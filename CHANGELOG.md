@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.0.3
+
+Image-preview and sidebar/relbar polish.
+
+- Image preview: pinch-to-zoom on touch devices, and wheel/pinch zoom now keeps
+  the point under the cursor (or the pinch midpoint) fixed instead of zooming
+  from the centre.
+- Sidebar: moved search up under the site title; replaced the "SEARCH" heading
+  with a "Search..." placeholder; removed the divider above it; anchored the
+  "Hide Search Matches" link so the nav tree no longer jumps when it appears.
+- Relbar: trimmed padding and removed the dead gap above the top relbar.
+- Removed the dotted underline alabaster drew across the sidebar title.
+- Bumping the moving `v1` tag propagates this to consuming repos on next build.
+
 ## v1.0.1
 
 Fix the sidebar search box rendering as the default alabaster "Search/Go" box
