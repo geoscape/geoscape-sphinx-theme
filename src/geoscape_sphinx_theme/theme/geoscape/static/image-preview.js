@@ -30,6 +30,28 @@
   var state = { zoom: 1, x: 0, y: 0, src: '', name: '' };
   var lastFocus = null;
 
+  /* Live pointers keyed by pointerId, so a two-finger pinch can be tracked
+     alongside the single-pointer pan. A plain object rather than a Map to match
+     the rest of the file's ES5 style. */
+  var pointers = {};
+  var pan = null;
+  var pinch = null;
+  var bound = false;
+
+  function pointerList() {
+    return Object.keys(pointers).map(function (id) {
+      return pointers[id];
+    });
+  }
+
+  function distance(a, b) {
+    return Math.hypot(b.x - a.x, b.y - a.y);
+  }
+
+  function midpoint(a, b) {
+    return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+  }
+
   var ICONS = {
     /* lucide: zoom-in, zoom-out, rotate-ccw, download, x */
     zoomIn: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6"/><path d="M8 11h6"/>',
@@ -164,14 +186,34 @@
     els.zoomOut.disabled = z <= MIN_ZOOM;
   }
 
-  function setZoom(z) {
-    state.zoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z));
-    if (state.zoom === 1) {
+  /* `anchor` is an optional point in client coordinates that should stay put
+     across the zoom — the pointer under a wheel tick, or the midpoint of a
+     pinch. Without it the zoom is centred, which on a wide data-dictionary
+     diagram means magnifying away from whatever you were reading.
+
+     The image is flex-centred in the stage, so its untransformed centre C is
+     the stage's centre. A point maps to screen as `C + t + z * (p - C)`; for
+     the anchor to be invariant when z scales by k, the translation must move by
+     `d * (1 - k)` where `d = anchor - C - t`. */
+  function setZoom(z, anchor) {
+    var previous = state.zoom;
+    var next = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z));
+    state.zoom = next;
+
+    if (next === 1) {
       /* Drop any pan when returning to fit, otherwise the image can sit
          off-centre with no visual cue that it's been dragged. */
       state.x = 0;
       state.y = 0;
+    } else if (anchor && previous > 0) {
+      var rect = els.stage.getBoundingClientRect();
+      var cx = rect.left + rect.width / 2;
+      var cy = rect.top + rect.height / 2;
+      var k = next / previous;
+      state.x += (anchor.x - cx - state.x) * (1 - k);
+      state.y += (anchor.y - cy - state.y) * (1 - k);
     }
+
     render();
   }
 
@@ -209,6 +251,11 @@
     document.body.removeAttribute('data-lightbox-open');
     /* Release the decoded bitmap — appendix diagrams are large. */
     els.img.removeAttribute('src');
+    /* Drop any in-flight gesture: closing mid-pinch (e.g. via Esc) would
+       otherwise leave stale pointers that make the next open think a finger is
+       already down. */
+    pointers = {};
+    startGesture();
     /* Guard isConnected: the trigger could have been removed while open. */
     if (lastFocus && lastFocus.isConnected && lastFocus.focus) lastFocus.focus();
     lastFocus = null;
@@ -250,30 +297,112 @@
 
   function onWheel(e) {
     e.preventDefault();
-    setZoom(state.zoom * (e.deltaY < 0 ? ZOOM_STEP : 1 / ZOOM_STEP));
+    /* Anchor on the pointer, so the wheel magnifies the row or column under the
+       cursor rather than the middle of the diagram. */
+    setZoom(state.zoom * (e.deltaY < 0 ? ZOOM_STEP : 1 / ZOOM_STEP), {
+      x: e.clientX,
+      y: e.clientY
+    });
   }
 
-  function onPointerDown(e) {
-    if (state.zoom <= 1 || e.button !== 0) return;
-    e.preventDefault();
-    var startX = e.clientX - state.x;
-    var startY = e.clientY - state.y;
-    els.stage.setAttribute('data-panning', '');
+  /* Pointer handling covers three gestures with one set of listeners, because a
+     pinch can begin as a pan (one finger down, then a second):
+       - one pointer, zoomed in  → pan
+       - two pointers            → pinch to zoom, anchored on their midpoint
+       - two down to one         → resume panning from the survivor
 
-    function move(ev) {
-      state.x = ev.clientX - startX;
-      state.y = ev.clientY - startY;
+     Listeners are bound once on window rather than per-gesture, so adding a
+     second finger mid-drag doesn't need a re-bind. */
+  function onPointerDown(e) {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+    pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+
+    /* Bind unconditionally, even when this pointer starts no gesture. Every
+       registered pointer must be reachable by the pointerup that removes it —
+       an early return here used to strand one, and the next press then saw two
+       "fingers" down and started a phantom pinch instead of a pan. */
+    if (!bound) {
+      window.addEventListener('pointermove', onPointerMove, { passive: false });
+      window.addEventListener('pointerup', onPointerUp);
+      window.addEventListener('pointercancel', onPointerUp);
+      bound = true;
+    }
+
+    startGesture();
+
+    /* Only claim the event once a gesture is actually live. Suppressing the
+       default for an idle press would also suppress the click that dismisses
+       the overlay from the backdrop. Two fingers zoom even at fit, since pinch
+       is how you zoom on a touch device; a single pointer only pans once
+       there's overflow to pan. */
+    if (pan || pinch) e.preventDefault();
+  }
+
+  /* (Re)establish the gesture baseline from whatever pointers are currently
+     down. Called on every up and down so the transition between pan and pinch
+     doesn't jump — each mode records its own origin relative to the current
+     transform. */
+  function startGesture() {
+    var list = pointerList();
+
+    if (list.length >= 2) {
+      pan = null;
+      pinch = {
+        distance: distance(list[0], list[1]),
+        zoom: state.zoom
+      };
+      /* A pinch is a zoom, not a drag — don't show the grabbing cursor. The
+         separate flag still suppresses the transform transition, which would
+         otherwise lag a finger. */
+      els.stage.removeAttribute('data-panning');
+      els.stage.setAttribute('data-zooming', '');
+    } else if (list.length === 1 && state.zoom > 1) {
+      pinch = null;
+      pan = { x: list[0].x - state.x, y: list[0].y - state.y };
+      els.stage.removeAttribute('data-zooming');
+      els.stage.setAttribute('data-panning', '');
+    } else {
+      pan = null;
+      pinch = null;
+      els.stage.removeAttribute('data-panning');
+      els.stage.removeAttribute('data-zooming');
+    }
+  }
+
+  function onPointerMove(e) {
+    if (!pointers[e.pointerId]) return;
+    pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+    var list = pointerList();
+
+    if (pinch && list.length >= 2) {
+      e.preventDefault();
+      var spread = distance(list[0], list[1]);
+      /* Guard a zero baseline: two pointers landing on the same coordinate
+         would otherwise divide to Infinity. */
+      if (pinch.distance > 0) {
+        setZoom(pinch.zoom * (spread / pinch.distance), midpoint(list[0], list[1]));
+      }
+      return;
+    }
+
+    if (pan) {
+      e.preventDefault();
+      state.x = e.clientX - pan.x;
+      state.y = e.clientY - pan.y;
       render();
     }
+  }
 
-    function up() {
-      els.stage.removeAttribute('data-panning');
-      window.removeEventListener('pointermove', move);
-      window.removeEventListener('pointerup', up);
+  function onPointerUp(e) {
+    delete pointers[e.pointerId];
+    startGesture();
+    if (!pointerList().length) {
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('pointercancel', onPointerUp);
+      bound = false;
     }
-
-    window.addEventListener('pointermove', move);
-    window.addEventListener('pointerup', up);
   }
 
   function isOpen() {

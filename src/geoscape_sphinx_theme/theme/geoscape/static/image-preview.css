@@ -122,6 +122,10 @@ body[data-lightbox-open] {
   overflow: hidden;
   /* The scrim is clickable to dismiss, so show that it isn't the image. */
   cursor: zoom-out;
+  /* Hand every touch gesture to the script. Without this the browser claims the
+     pinch for its own page zoom and the pointer events never fire, so
+     pinch-to-zoom on the diagram would silently do nothing. */
+  touch-action: none;
 }
 
 /* Cursors are set on the image separately from the stage. The stage is the
@@ -156,8 +160,10 @@ body[data-lightbox-open] {
   -webkit-user-drag: none;
 }
 
-/* No transition while dragging, or the image lags the cursor. */
-.gs-lightbox__stage:not([data-panning]) .gs-lightbox__img {
+/* No transition while dragging or pinching, or the image lags the cursor. The
+   toolbar buttons and keyboard shortcuts keep it, since a stepped zoom reads
+   better animated. */
+.gs-lightbox__stage:not([data-panning]):not([data-zooming]) .gs-lightbox__img {
   transition: transform 0.12s ease-out;
 }
 
