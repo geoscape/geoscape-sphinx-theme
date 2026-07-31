@@ -1,16 +1,16 @@
 {#-
   Custom quick-search box (overrides basic/searchbox.html).
-  - Own divided section with an uppercase label matching the nav headings
+  - No visible label: the placeholder and the magnifier button carry the intent,
+    so the search reads as one compact control right under the site title
   - Input with a submit button attached flush to its right edge
-  - No placeholder text
 -#}
 {%- if pagename != "search" and builder != "singlehtml" %}
 <search id="searchbox" class="gs-search-section" style="display: none" role="search">
-  <p class="gs-search__label" id="searchlabel">{{ _('Search') }}</p>
   <div class="searchformwrapper">
     <form class="search gs-search" action="{{ pathto('search') }}" method="get">
       <input type="text" name="q"
-             aria-labelledby="searchlabel"
+             placeholder="{{ _('Search...') }}"
+             aria-label="{{ _('Search') }}"
              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <button type="submit" class="gs-search__submit" aria-label="{{ _('Search') }}" title="{{ _('Search') }}">
         {#- lucide: search -#}

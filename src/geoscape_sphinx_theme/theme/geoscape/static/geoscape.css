@@ -186,6 +186,10 @@ div.body .line-block {
 div.document {
   max-width: none;
   width: 100%;
+  /* Alabaster puts a 30px top margin here, which lands between the fixed
+     topbar and the first relbar as dead space. The body already reserves room
+     for the fixed topbar, so only a small gap is wanted. */
+  margin-top: 8px;
 }
 
 div.documentwrapper {
@@ -485,6 +489,13 @@ div.sphinxsidebar h1.logo a {
   font-weight: 700;
 }
 
+/* Drop alabaster's `div.sphinxsidebar a { border-bottom: dotted }`, which draws
+   a broken underline across the site title. (The nav links clear it separately
+   below.) */
+div.sphinxsidebar h1.logo a {
+  border-bottom: 0;
+}
+
 .gs-nav {
   margin-top: 0.5rem;
 }
@@ -705,21 +716,32 @@ div.sphinxsidebar .gs-nav__extra {
 /* Own section, divided from the links above (matches other separators) */
 div.sphinxsidebar .gs-search-section {
   display: block;
-  margin-top: 1.75rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border);
+  margin-top: 0;
+  /* Bottom margin doubles as the landing strip for the "Hide Search Matches"
+     link (absolutely positioned below, see .highlight-link). Sizing the margin
+     to the link's height means the search box takes the same room whether or
+     not a search is active, so the nav tree never jumps — and there's no empty
+     reserved row cluttering the resting state. */
+  margin-bottom: 1.75rem;
+  position: relative;
 }
 
-/* Subtle label to match nav headings (replaces the big <h3>) */
-.gs-search__label {
-  font-family: var(--font-heading);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin: 0 0 0.5rem 0;
+/* Sphinx injects `<p class="highlight-link"><a>Hide Search Matches</a></p>`
+   INSIDE the search box after a search. Left in flow it shoves the whole nav
+   tree down by its full height; pulled out of flow into the reserved margin
+   below the input, it appears in place with no layout shift. */
+div.sphinxsidebar .gs-search-section .highlight-link {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  margin: 0.4rem 0 0 0;
   padding: 0;
+  font-size: 0.78rem;
+  line-height: 1.2;
+}
+
+div.sphinxsidebar .gs-search-section .highlight-link a {
+  color: var(--text-muted);
 }
 
 /* Input + button form one connected control (button attached flush right) */
@@ -743,6 +765,15 @@ div.sphinxsidebar .gs-search input[type="text"] {
   border-right: 0;
   border-radius: var(--radius-md) 0 0 var(--radius-md);   /* left corners only */
   transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+/* Placeholder replaces the old "SEARCH" heading — muted so it reads as a hint,
+   not entered text. Needs the sphinxsidebar prefix to beat alabaster's input
+   colour, and the vendor selectors can't be combined (an unknown one voids the
+   whole list). */
+div.sphinxsidebar .gs-search input[type="text"]::placeholder {
+  color: var(--text-muted);
+  opacity: 1;   /* Firefox dims placeholders by default; undo it. */
 }
 
 div.sphinxsidebar .gs-search input[type="text"]:focus,
@@ -1385,7 +1416,7 @@ div.related {
     color: var(--text);
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
-    padding: 8px var(--content-padding);
+    padding: 3px var(--content-padding);
     font-size: 0.9em;
     overflow: hidden;
 }
