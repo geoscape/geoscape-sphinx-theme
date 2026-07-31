@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.4
+
+- Show the "On this page" sidebar panel only when the current document has a
+  third heading level (e.g. a 1.1.1). Pages that go only two deep already have
+  every subsection listed in the main nav (1.1 under 1), so the panel was pure
+  duplication there; it now appears only when it adds something the nav doesn't.
+
 ## v1.0.3
 
 Image-preview and sidebar/relbar polish.

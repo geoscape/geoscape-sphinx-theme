@@ -8,7 +8,7 @@ consuming ``conf.py`` only needs ``html_theme = "geoscape"``.
 """
 from pathlib import Path
 
-__version__ = "1.0.3"
+__version__ = "1.0.4"
 
 _THEME_DIR = Path(__file__).parent / "theme"
 

@@ -5,7 +5,8 @@ A shadcn-inspired Sphinx documentation theme for Geoscape docs. It inherits from
 
 - Geoscape design tokens (OKLCH), light **and** dark mode with a theme toggle
 - A collapsible sidebar nav with active-branch highlighting and an
-  "On this page" local table of contents
+  "On this page" local table of contents (shown only when a page goes three
+  heading levels deep, so it never just restates the main nav)
 - Restyled code blocks, tables, admonitions, and a quick search that sits
   directly under the site title
 - A zoomable, downloadable image preview overlay (wheel/pinch zoom anchored on
@@ -101,13 +102,13 @@ must stay in sync — this is the part that's easy to get wrong:
 
 | Reference | Example | Notes |
 |-----------|---------|-------|
-| `pyproject.toml` → `version` | `1.0.3` | **Exact**, no `v` prefix (PEP 440). Never `v1`. |
-| `__init__.py` → `__version__` | `1.0.3` | Same value as pyproject. |
-| Exact git tag | `v1.0.3` | `v` prefix; points at this commit. |
+| `pyproject.toml` → `version` | `1.0.4` | **Exact**, no `v` prefix (PEP 440). Never `v1`. |
+| `__init__.py` → `__version__` | `1.0.4` | Same value as pyproject. |
+| Exact git tag | `v1.0.4` | `v` prefix; points at this commit. |
 | Moving major tag | `v1` | `v` prefix; **moved** to the same commit. |
 
-**One version number** (`1.0.3`) goes in the two Python files; **two git tags**
-(`v1.0.3` and `v1`) point at the same commit. The moving `v1` tag is only a git
+**One version number** (`1.0.4`) goes in the two Python files; **two git tags**
+(`v1.0.4` and `v1`) point at the same commit. The moving `v1` tag is only a git
 pointer — it never appears in `pyproject.toml`.
 
 **Why the version bump is mandatory:** pip decides whether to reinstall by
@@ -121,16 +122,16 @@ the **old** theme with no error. Bumping the version forces the re-fetch.
 # 1. Test the change first (no tag yet):
 scripts/test-propagation.sh ../docs_buildings_guide
 
-# 2. Bump BOTH files to the new exact version (e.g. 1.0.3):
-#    - pyproject.toml     version = "1.0.3"
-#    - __init__.py        __version__ = "1.0.3"
+# 2. Bump BOTH files to the new exact version (e.g. 1.0.4):
+#    - pyproject.toml     version = "1.0.4"
+#    - __init__.py        __version__ = "1.0.4"
 #    - add a CHANGELOG.md entry
 
 # 3. Commit, tag exact + move the major tag, push:
-git commit -am "Release 1.0.3: <what changed>"
-git tag v1.0.3            # exact tag == pyproject version, with a leading v
+git commit -am "Release 1.0.4: <what changed>"
+git tag v1.0.4            # exact tag == pyproject version, with a leading v
 git tag -f v1             # move the major alias onto the same commit
-git push origin master v1.0.3
+git push origin master v1.0.4
 git push -f origin v1     # force-push applies ONLY to the moving v1 tag
 
 # 4. Rebuild the consuming repos on Read the Docs (they re-run pip install and
@@ -139,7 +140,7 @@ git push -f origin v1     # force-push applies ONLY to the moving v1 tag
 ```
 
 Consuming repos pinned to `@v1` need no file change to adopt a release — just a
-rebuild. Repos pinned to an exact tag (`@v1.0.3`) adopt it by re-pinning
+rebuild. Repos pinned to an exact tag (`@v1.0.4`) adopt it by re-pinning
 (`scripts/migrate-repos.py` can do this in bulk).
 
 ## Compatibility

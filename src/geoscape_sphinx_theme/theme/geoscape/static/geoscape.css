@@ -534,6 +534,21 @@ div.sphinxsidebar .gs-nav__heading--local {
   border-top: 1px solid var(--border);
 }
 
+/* Suppress "On this page" unless the current doc has a THIRD heading level.
+   The local toc nests as: outer <ul> (page title) > <ul> (1.1, 1.2 …) > <ul>
+   (1.1.1 …). The first two levels just restate the sidebar nav, which already
+   shows 1.1 under 1 — so the panel only earns its space once a 1.1.1 exists,
+   i.e. once a `.gs-nav__local ul ul ul` is present.
+
+   Anchored on the .gs-nav container so both the heading and the toc div are
+   hidden by one condition. (A `:not(:has())` on the div itself is fine, but
+   hiding the sibling heading the same way would need :has inside :not inside
+   :has, which no browser accepts — so drive both from the ancestor.) */
+.gs-nav:not(:has(.gs-nav__local ul ul ul)) .gs-nav__heading--local,
+.gs-nav:not(:has(.gs-nav__local ul ul ul)) .gs-nav__local {
+  display: none;
+}
+
 /* Reset Sphinx's default toctree list chrome.
    Alabaster sets list-style:square on nested ul AND li, so reset both. */
 .gs-nav__global ul,
