@@ -31,12 +31,36 @@
     {#- lucide: panel-left — the same icon the hub's <SidebarTrigger> uses. -#}
     <svg class="gs-nav-toggle__icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>
   </button>
-  <button type="button"
-          class="gs-theme-toggle"
-          aria-label="Theme: auto"
-          data-theme-state="auto">
-    <span class="gs-theme-toggle__label">Auto</span>
-  </button>
+  {%- if hub_url %}
+  <a class="gs-topbar-link" href="{{ hub_url }}" target="_blank" rel="noopener noreferrer">
+    {#- lucide: external-link -#}
+    <svg class="gs-topbar-link__icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+    <span class="gs-topbar-link__label">{{ hub_label | default('Go to Hub') }}</span>
+  </a>
+  {%- endif %}
+  {#- Theme menu: a single trigger showing the current mode's icon, opening a
+      Light / Dark / System dropdown — mirrors the hub front-end. The three
+      icons are defined once in the trigger; JS shows only the active one. -#}
+  <div class="gs-theme">
+    <button type="button"
+            class="gs-theme__trigger"
+            aria-label="Colour theme"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            title="Colour theme">
+      {#- lucide: sun -#}
+      <svg class="gs-theme__icon" data-theme-icon="light" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+      {#- lucide: moon -#}
+      <svg class="gs-theme__icon" data-theme-icon="dark" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      {#- lucide: monitor -#}
+      <svg class="gs-theme__icon" data-theme-icon="auto" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
+    </button>
+    <div class="gs-theme__menu" role="menu" aria-label="Colour theme" hidden>
+      <button type="button" class="gs-theme__item" role="menuitemradio" data-theme-value="light" aria-checked="false">Light</button>
+      <button type="button" class="gs-theme__item" role="menuitemradio" data-theme-value="dark" aria-checked="false">Dark</button>
+      <button type="button" class="gs-theme__item" role="menuitemradio" data-theme-value="auto" aria-checked="false">System</button>
+    </div>
+  </div>
 </header>
 <div class="gs-backdrop" hidden></div>
 {%- endblock %}

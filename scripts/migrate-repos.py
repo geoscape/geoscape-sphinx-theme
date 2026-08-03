@@ -114,16 +114,22 @@ def edit_confpy(text: str) -> tuple[str, list[str]]:
         text = new
         changes.append("removed html_sidebars block")
 
-    # 4. dedupe the extra_nav_links the theme now renders itself: the docs-home
-    #    link (house icon) and the Geoscape website link (globe icon). Leaving
-    #    either in place would double it up. The theme collapses exact-URL
-    #    duplicates defensively, but a stale entry here still overrides the
-    #    theme's label — e.g. a bare "Geoscape" would keep showing instead of
-    #    "Geoscape Website" — so strip them at the source.
+    # 4. dedupe the extra_nav_links the theme now handles itself:
+    #      - the docs-home link (house icon, sidebar), which the theme renders
+    #        and collapses exact-URL duplicates of via `docs_home_url`;
+    #      - the old Geoscape *website* link — the theme no longer renders a
+    #        website link at all (it now shows a "Go to Hub" topbar link
+    #        instead), and stakeholders dropped the website link, so any stale
+    #        entry here is removed outright rather than deduped;
+    #      - a hand-added Hub link, so it doesn't duplicate the topbar one.
+    #    NOTE: the theme's URL-dedup now compares against `hub_url`, not the
+    #    website URL, so a stale website entry is ONLY removed here — hence we
+    #    strip it at the source.
     #    Quotes may be single or double; label spelling varies across repos.
     for label_pattern, description in (
         (r"Geoscape Documentation", "docs-home"),
         (r"Geoscape Website|Geoscape", "website"),
+        (r"Go to Hub|Geoscape Hub|Hub", "hub"),
     ):
         new = re.sub(
             rf"""^[ \t]*(['"])(?:{label_pattern})\1[ \t]*:[ \t]*"""

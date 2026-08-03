@@ -3,7 +3,6 @@
 
   var STORAGE_KEY = 'gs-theme';
   var STATES = ['light', 'dark', 'auto'];
-  var LABELS = { light: 'Light', dark: 'Dark', auto: 'Auto' };
 
   function readState() {
     try {
@@ -34,18 +33,23 @@
     } else {
       document.body.classList.remove('dark-mode');
     }
-    var btn = document.querySelector('.gs-theme-toggle');
-    if (btn) {
-      btn.setAttribute('data-theme-state', state);
-      btn.setAttribute('aria-label', 'Theme: ' + state);
-      var label = btn.querySelector('.gs-theme-toggle__label');
-      if (label) label.textContent = LABELS[state];
+    var root = document.querySelector('.gs-theme');
+    if (root) {
+      root.setAttribute('data-theme-state', state);
+      /* Trigger shows only the selected mode's icon. These are SVG elements,
+         which don't support the HTML `hidden` attribute (it's an HTMLElement
+         property and doesn't reflect on SVG), so toggle a class instead. */
+      var icons = root.querySelectorAll('.gs-theme__icon');
+      Array.prototype.forEach.call(icons, function (ic) {
+        var active = ic.getAttribute('data-theme-icon') === state;
+        ic.classList.toggle('gs-theme__icon--hidden', !active);
+      });
+      /* Menu radio state. */
+      var items = root.querySelectorAll('.gs-theme__item');
+      Array.prototype.forEach.call(items, function (it) {
+        it.setAttribute('aria-checked', it.getAttribute('data-theme-value') === state ? 'true' : 'false');
+      });
     }
-  }
-
-  function next(state) {
-    var i = STATES.indexOf(state);
-    return STATES[(i + 1) % STATES.length];
   }
 
   /* Wrap every content table in a horizontally scrollable container.
@@ -110,12 +114,46 @@
     wrapTables();
     window.addEventListener('resize', syncScrollability);
 
-    var btn = document.querySelector('.gs-theme-toggle');
-    if (btn) {
-      btn.addEventListener('click', function () {
-        current = next(current);
-        writeState(current);
-        apply(current);
+    var themeRoot = document.querySelector('.gs-theme');
+    if (themeRoot) {
+      var trigger = themeRoot.querySelector('.gs-theme__trigger');
+      var menu = themeRoot.querySelector('.gs-theme__menu');
+
+      var openMenu = function () {
+        menu.hidden = false;
+        trigger.setAttribute('aria-expanded', 'true');
+      };
+      var closeMenu = function () {
+        menu.hidden = true;
+        trigger.setAttribute('aria-expanded', 'false');
+      };
+
+      trigger.addEventListener('click', function () {
+        if (menu.hidden) openMenu(); else closeMenu();
+      });
+
+      menu.addEventListener('click', function (e) {
+        var item = e.target.closest && e.target.closest('.gs-theme__item');
+        if (!item) return;
+        var value = item.getAttribute('data-theme-value');
+        if (STATES.indexOf(value) !== -1) {
+          current = value;
+          writeState(current);
+          apply(current);
+        }
+        closeMenu();
+        trigger.focus();
+      });
+
+      /* Dismiss on outside click or Escape. */
+      document.addEventListener('click', function (e) {
+        if (!menu.hidden && !themeRoot.contains(e.target)) closeMenu();
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !menu.hidden) {
+          closeMenu();
+          trigger.focus();
+        }
       });
     }
 

@@ -8,7 +8,7 @@ consuming ``conf.py`` only needs ``html_theme = "geoscape"``.
 """
 from pathlib import Path
 
-__version__ = "1.0.4"
+__version__ = "1.0.5"
 
 _THEME_DIR = Path(__file__).parent / "theme"
 
@@ -16,9 +16,9 @@ _THEME_DIR = Path(__file__).parent / "theme"
 def _set_defaults(config):
     """Provide the sidebar link defaults unless the consuming repo set its own.
 
-    Covers the docs-home link and the Geoscape website link. Both are rendered
-    by ``navigation.html``; supplying them here means a consuming ``conf.py``
-    needs no ``extra_nav_links`` entry for either.
+    Covers the docs-home link (sidebar) and the Geoscape Hub link (topbar);
+    supplying them here means a consuming ``conf.py`` needs no
+    ``extra_nav_links`` entry for either.
 
     The sidebar layout is declared in the theme's ``theme.conf`` (``sidebars =``),
     which is evaluated at theme-load time and is stable across Sphinx versions —
@@ -26,8 +26,8 @@ def _set_defaults(config):
     context = config.html_context
     context.setdefault("docs_home_url", "https://docs.geoscape.com.au")
     context.setdefault("docs_home_label", "Geoscape Documentation")
-    context.setdefault("website_url", "https://geoscape.com.au/")
-    context.setdefault("website_label", "Geoscape Website")
+    context.setdefault("hub_url", "https://hub.geoscape.com.au/")
+    context.setdefault("hub_label", "Go to Hub")
 
 
 def _is_enabled(config, option, default=True):

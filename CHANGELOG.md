@@ -1,5 +1,22 @@
 # Changelog
 
+## v1.0.5
+
+- **Topbar link changed from the Geoscape website to the Geoscape Hub.** The
+  sidebar's Geoscape website link moved up into the topbar and is now a
+  "Go to Hub" link (https://hub.geoscape.com.au/) — internal stakeholders found
+  the Hub more useful than the marketing site.
+  - **Breaking for overrides:** the `html_context` keys renamed from
+    `website_url` / `website_label` to `hub_url` / `hub_label`. A consuming
+    repo that set the old keys must switch to the new ones (the theme now
+    defaults them to the Hub). Repos relying on the defaults need no change.
+- Replaced the single cycling theme button with a single icon trigger showing
+  the current mode's icon (sun / moon / monitor), opening a Light / Dark /
+  System dropdown menu — mirroring the Geoscape hub front-end. The menu closes
+  on selection, outside-click, or Escape.
+- The sidebar-collapse and theme-menu buttons are now borderless icon buttons;
+  only the "Go to Hub" link keeps a bordered-pill look.
+
 ## v1.0.4
 
 - Show the "On this page" sidebar panel only when the current document has a

@@ -1376,11 +1376,21 @@ div.bodywrapper {
    on desktop it collapses the sidebar to give wide reference tables (e.g.
    appendix C's data dictionary) the full window; below 940px it opens the
    drawer instead. */
-.gs-nav-toggle {
+/* Scoped under .gs-topbar so specificity (0,2,0) beats the generic
+   `.gs-topbar button` rule (0,1,1) — a bare `.gs-nav-toggle` would lose its
+   border override to it. This and the theme trigger are borderless icon
+   buttons, unlike the "Geoscape Website" pill. */
+.gs-topbar .gs-nav-toggle {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 7px;
+    border: 0;
+    background-color: transparent;
+}
+
+.gs-topbar .gs-nav-toggle:hover {
+    background-color: var(--bg-hover);
 }
 
 .gs-nav-toggle__icon {
@@ -1408,10 +1418,125 @@ div.bodywrapper {
     }
 }
 
-/* Theme toggle */
-.gs-theme-toggle {
-    min-width: 70px;
-    text-align: center;
+/* "Go to Hub" link in the topbar — a small, compact pill sitting just before
+   the theme control. It's an <a> but reads as a button, so override every
+   link state (alabaster styles `a`, `a:hover`, `a:visited` with the accent
+   colour and an underline). */
+.gs-topbar-link,
+.gs-topbar-link:hover,
+.gs-topbar-link:visited,
+.gs-topbar-link:active,
+.gs-topbar-link:focus {
+    color: var(--text);
+    text-decoration: none;
+}
+
+.gs-topbar-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background-color: var(--bg);
+    border: 1px solid var(--border);
+    font-family: var(--font-body);
+    font-size: 0.8em;
+    line-height: 1;
+    padding: 5px 8px;
+    border-radius: var(--radius-md);
+    white-space: nowrap;
+}
+
+.gs-topbar-link:hover {
+    background-color: var(--bg-hover);
+}
+
+.gs-topbar-link:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.gs-topbar-link__icon {
+    display: block;
+    flex: none;
+    width: 14px;
+    height: 14px;
+    color: var(--text-muted);
+}
+
+/* Theme menu: a single icon trigger that opens a Light / Dark / System
+   dropdown, mirroring the hub front-end. */
+.gs-theme {
+    position: relative;
+    display: inline-flex;
+}
+
+.gs-topbar .gs-theme__trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px;
+    color: var(--text);
+    border: 0;
+    background-color: transparent;
+}
+
+.gs-topbar .gs-theme__trigger:hover {
+    background-color: var(--bg-hover);
+}
+
+.gs-theme__icon {
+    display: block;
+}
+
+/* JS hides the non-active icons with this class. A class beats the bare
+   `.gs-theme__icon` above on specificity. (These are SVG elements, so the
+   HTML `hidden` attribute can't be used — hence a class.) */
+.gs-theme__icon--hidden {
+    display: none;
+}
+
+/* `display: flex` below overrides the browser's default `[hidden]{display:none}`,
+   so the menu would never hide — restore it explicitly. */
+.gs-theme__menu[hidden] {
+    display: none;
+}
+
+.gs-theme__menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 1;
+    min-width: 140px;
+    display: flex;
+    flex-direction: column;
+    padding: 4px;
+    background-color: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.gs-topbar .gs-theme__item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: 0;
+    background-color: transparent;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.85em;
+    line-height: 1.2;
+    padding: 7px 10px;
+    border-radius: calc(var(--radius-md) - 2px);
+    cursor: pointer;
+}
+
+.gs-topbar .gs-theme__item:hover {
+    background-color: var(--bg-hover);
+}
+
+.gs-topbar .gs-theme__item[aria-checked="true"] {
+    background-color: var(--bg-hover);
+    font-weight: 600;
 }
 
 @media print {
