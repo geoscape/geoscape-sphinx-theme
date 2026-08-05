@@ -3,8 +3,9 @@
 A shadcn-inspired Sphinx documentation theme for Geoscape docs. It inherits from
 [alabaster](https://alabaster.readthedocs.io/) and adds:
 
-- Geoscape design tokens (OKLCH), light **and** dark mode with a segmented
-  topbar theme menu (sun / moon / system) beside a "Go to Hub" link
+- Geoscape design tokens (OKLCH), light **and** dark mode with a topbar theme
+  control — an icon trigger (sun / moon / monitor) opening a Light / Dark /
+  System dropdown — beside a "Go to Hub" link
 - A collapsible sidebar nav with active-branch highlighting and an
   "On this page" local table of contents (shown only when a page goes three
   heading levels deep, so it never just restates the main nav)

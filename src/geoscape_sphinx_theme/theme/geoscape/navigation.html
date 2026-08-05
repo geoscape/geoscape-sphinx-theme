@@ -33,13 +33,13 @@
       </a>
     </li>
     {%- endif %}
-    {#- The Geoscape website link lives in the topbar (see layout.html), beside
-        the theme toggle — not repeated here. -#}
+    {#- The "Go to Hub" link lives in the topbar (see layout.html), beside the
+        theme menu — not repeated here. -#}
     {#- `extra_nav_links` defaults to an empty STRING in theme.conf, so guard
         with `is mapping` — calling .items() on the default raises
         UndefinedError and hard-fails the build. Also skip any entry that
-        duplicates a link the theme already rendered above: the 60+ repos not
-        yet migrated still list the website here by hand. -#}
+        duplicates a link the theme already rendered above (docs-home or the
+        hub link): repos not yet migrated may still list these here by hand. -#}
     {%- set rendered_urls = [docs_home_url, hub_url] | select | list %}
     {%- for text, uri in (theme_extra_nav_links if theme_extra_nav_links is mapping else {}).items() %}
     {%- if uri not in rendered_urls %}

@@ -23,7 +23,6 @@
   /* Borders (hub-aligned: subtle, no pure black) */
   --border: oklch(0.923 0.003 48.717);        /* hub --border */
   --border-strong: oklch(0.86 0.004 49);
-  --border-subtle: oklch(0.94 0.003 48);
   --ring: oklch(0.709 0.01 56.259);           /* hub --ring */
 
   /* Accents (kept dark for ::selection contrast) */
@@ -79,8 +78,6 @@
 
     /* Top bar */
     --topbar-height: 48px;
-    --topbar-bg: var(--bg);
-    --topbar-border: var(--border);
     --topbar-z: 100;
     --drawer-width: var(--sidebar-width-mobile);
     --drawer-z: 90;
@@ -108,7 +105,6 @@ html.dark-mode-pre {
 
   --border: oklch(1 0 0 / 10%);               /* hub dark --border */
   --border-strong: oklch(1 0 0 / 22%);
-  --border-subtle: oklch(1 0 0 / 8%);
   --ring: oklch(0.553 0.013 58.071);
 
   --accent-bg: oklch(0.985 0.001 106.423);
@@ -1250,7 +1246,6 @@ dl.glossary dd {
   :root {
     --content-padding: 24px;
   }
-
 }
 
 /* Small laptops (1025–1280px) */
@@ -1267,7 +1262,6 @@ dl.glossary dd {
     --content-padding: 40px;
     --reading-width: 75ch;
   }
-
 }
 
 /* Large desktops (1441–1920px) */
@@ -1276,7 +1270,6 @@ dl.glossary dd {
     --content-padding: 56px;
     --reading-width: 80ch;
   }
-
 }
 
 /* Ultra-wide (1921px+) */

@@ -35,7 +35,6 @@
     }
     var root = document.querySelector('.gs-theme');
     if (root) {
-      root.setAttribute('data-theme-state', state);
       /* Trigger shows only the selected mode's icon. These are SVG elements,
          which don't support the HTML `hidden` attribute (it's an HTMLElement
          property and doesn't reflect on SVG), so toggle a class instead. */
