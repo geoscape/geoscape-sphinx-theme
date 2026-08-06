@@ -1315,47 +1315,7 @@ body {
     z-index: var(--topbar-z);
 }
 
-/* The toggle + brand wordmark form the left group; the brand carries the
-   auto margin so everything after it (hub link, theme control) sits right. */
-.gs-brand { margin-right: auto; }
-
-/* Brand wordmark: "Geoscape Docs", the second word in the brand blue. It's an
-   <a> but reads as a wordmark, so override alabaster's link states (colour +
-   underline on a, a:hover, a:visited). */
-.gs-brand,
-.gs-brand:hover,
-.gs-brand:visited,
-.gs-brand:active,
-.gs-brand:focus {
-    text-decoration: none;
-}
-
-.gs-brand {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 0.28em;
-    font-family: var(--font-heading);
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    line-height: 1;
-    white-space: nowrap;
-}
-
-.gs-brand__name { color: var(--text); }
-.gs-brand__docs { color: var(--primary); }
-
-.gs-brand:focus-visible {
-    outline: 2px solid var(--primary);
-    outline-offset: 2px;
-    border-radius: var(--radius-sm);
-}
-
-/* On narrow screens the wordmark would crowd the toggle; the sidebar title
-   already names the product there, so hide it below the drawer breakpoint. */
-@media (max-width: 560px) {
-    .gs-brand { display: none; }
-}
+.gs-nav-toggle { margin-right: auto; }
 
 /* Override alabaster's white documentwrapper/sphinxsidebar backgrounds at narrow widths */
 div.document,
