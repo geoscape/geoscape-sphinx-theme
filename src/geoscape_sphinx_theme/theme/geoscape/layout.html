@@ -2,6 +2,11 @@
 
 {%- block extrahead %}
 {{ super() }}
+{#- DM Sans for the topbar wordmark only. Preconnect keeps the extra request
+    off the critical path; the rest of the theme stays on the system stack. -#}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap">
 <script>
   (function () {
     try {
@@ -31,6 +36,13 @@
     {#- lucide: panel-left — the same icon the hub's <SidebarTrigger> uses. -#}
     <svg class="gs-nav-toggle__icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>
   </button>
+  {#- Wordmark anchored beside the toggle. margin-right:auto lives on .gs-brand
+      (not the toggle), so it pushes the hub link + theme menu to the far right. -#}
+  {%- if docs_home_url %}
+  <a class="gs-brand" href="{{ docs_home_url }}">Geoscape <span class="gs-brand__docs">DOCS</span></a>
+  {%- else %}
+  <span class="gs-brand">Geoscape <span class="gs-brand__docs">DOCS</span></span>
+  {%- endif %}
   {%- if hub_url %}
   <a class="gs-topbar-link" href="{{ hub_url }}" target="_blank" rel="noopener noreferrer">
     {#- lucide: external-link -#}

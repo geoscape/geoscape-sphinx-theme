@@ -4,6 +4,20 @@
   var STORAGE_KEY = 'gs-theme';
   var STATES = ['light', 'dark', 'auto'];
 
+  /* Captured at script-eval time, before sphinx_highlight.js's DOMContentLoaded
+     handler strips `?highlight=` from the URL and clears sphinx_highlight_terms
+     from localStorage. Used to pre-fill the sidebar search input so the term a
+     reader searched for stays visible in the box (see fillSearchTerm below).
+     `highlight` is set when landing on a doc page from a result; `q` is the
+     query on the search results page itself. */
+  var searchTerm = '';
+  try {
+    var _params = new URLSearchParams(window.location.search);
+    searchTerm = _params.get('highlight') ||
+                 _params.get('q') ||
+                 localStorage.getItem('sphinx_highlight_terms') || '';
+  } catch (e) {}
+
   function readState() {
     try {
       var v = localStorage.getItem(STORAGE_KEY);
@@ -106,10 +120,31 @@
     });
   }
 
+  /* Keep the searched term in the sidebar box after a search, and clear it only
+     when the reader clicks "Hide Search Matches" (which Sphinx injects as
+     `<p class="highlight-link">` inside #searchbox and which also unhighlights
+     the page via SphinxHighlight.hideSearchWords). */
+  function fillSearchTerm() {
+    var input = document.querySelector('#searchbox input[name="q"]');
+    if (input && searchTerm && !input.value) {
+      input.value = searchTerm;
+    }
+    /* Delegated: the link is added dynamically after the highlight pass. The
+       javascript: href still runs hideSearchWords; this just also empties the
+       input so the box returns to its resting placeholder state. */
+    document.addEventListener('click', function (e) {
+      var link = e.target.closest && e.target.closest('.highlight-link a');
+      if (!link) return;
+      var box = document.querySelector('#searchbox input[name="q"]');
+      if (box) box.value = '';
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     var current = readState();
     apply(current);
 
+    fillSearchTerm();
     wrapTables();
     window.addEventListener('resize', syncScrollability);
 

@@ -53,6 +53,8 @@
     "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   --font-mono:
     source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+  /* Topbar wordmark only (loaded in layout.html); falls back to the body stack */
+  --font-brand: "DM Sans", var(--font-body);
 
   /* Layout */
   --content-padding: 30px;
@@ -728,24 +730,18 @@ div.sphinxsidebar .gs-nav__extra {
 div.sphinxsidebar .gs-search-section {
   display: block;
   margin-top: 0;
-  /* Bottom margin doubles as the landing strip for the "Hide Search Matches"
-     link (absolutely positioned below, see .highlight-link). Sizing the margin
-     to the link's height means the search box takes the same room whether or
-     not a search is active, so the nav tree never jumps — and there's no empty
-     reserved row cluttering the resting state. */
-  margin-bottom: 1.75rem;
-  position: relative;
+  margin-bottom: 1.25rem;
 }
 
 /* Sphinx injects `<p class="highlight-link"><a>Hide Search Matches</a></p>`
-   INSIDE the search box after a search. Left in flow it shoves the whole nav
-   tree down by its full height; pulled out of flow into the reserved margin
-   below the input, it appears in place with no layout shift. */
+   INSIDE the search box after a search. It's left in normal flow so it can
+   never overlap the "DOCUMENTATION" caption below — an earlier version pulled
+   it out of flow into a fixed reserved margin, but any taller line or different
+   font metrics (as on Read the Docs) tipped it onto the caption. The link only
+   appears on a fresh page load after a search, so it re-flows the nav on load
+   rather than causing a mid-view jump. */
 div.sphinxsidebar .gs-search-section .highlight-link {
-  position: absolute;
-  left: 0;
-  top: 100%;
-  margin: 0.4rem 0 0 0;
+  margin: 0.5rem 0 0 0;
   padding: 0;
   font-size: 0.78rem;
   line-height: 1.2;
@@ -1315,7 +1311,65 @@ body {
     z-index: var(--topbar-z);
 }
 
-.gs-nav-toggle { margin-right: auto; }
+/* Wordmark holds the flex spacer, so the toggle sits flush-left beside it and
+   everything after (hub link, theme menu) is pushed to the far right. */
+.gs-brand {
+    margin-right: auto;
+    display: inline-flex;
+    align-items: center;
+    /* inline-flex collapses the whitespace text node between "Geoscape" and
+       the DOCS span, so restore the word gap explicitly. */
+    gap: 0.28em;
+    font-family: var(--font-brand);
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    text-decoration: none;
+    white-space: nowrap;
+    /* Reads as a title at rest; the hover fill (below) gives it the same
+       button feel as the toggle and hub link, so padding/radius live here.
+       The negative left margin cancels the padding so the text aligns to the
+       topbar's 12px gap (flush with the toggle), while the hover fill keeps
+       its 8px breathing room. */
+    padding: 5px 8px;
+    margin-left: -8px;
+    border-radius: var(--radius-md);
+}
+
+/* Neutralize alabaster's anchor styling so it never reads as a hyperlink —
+   no underline or accent colour on any state; the hover fill does the work. */
+.gs-brand,
+.gs-brand:hover,
+.gs-brand:visited,
+.gs-brand:active,
+.gs-brand:focus {
+    color: var(--text);
+    text-decoration: none;
+}
+
+.gs-brand:hover {
+    background-color: var(--bg-hover);
+}
+
+.gs-brand:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* "DOCS" in the signature blue — Stripe-style accented wordmark. */
+.gs-brand__docs {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* Below the phone breakpoint the wordmark would crowd the hub/theme controls,
+   so hide it. It carries the margin-right:auto flex spacer, so hand that back
+   to the toggle here — otherwise flex-end would drag the toggle to the right. */
+@media (max-width: 560px) {
+    .gs-brand { display: none; }
+    .gs-nav-toggle { margin-right: auto; }
+}
 
 /* Override alabaster's white documentwrapper/sphinxsidebar backgrounds at narrow widths */
 div.document,
