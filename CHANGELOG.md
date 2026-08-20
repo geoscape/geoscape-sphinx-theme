@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.0.6
+
+- In-page search for `singlehtml` builds. The `singlehtml` builder produces no
+  search index or `search.html`, so its sidebar search slot was empty. The theme
+  now renders a search box there that finds and highlights matches within the one
+  page — same sidebar control, same amber highlight, and same "Hide Search
+  Matches" affordance as the `html` search; Enter re-submits to step to the next
+  match. Controlled by a new `singlehtml_search` theme option (default on); when
+  off, or on any `html` build, nothing changes and the feature's CSS/JS aren't
+  linked.
+- Bumping the moving `v1` tag propagates this to consuming repos on next build.
+
 ## v1.0.5
 
 - **Topbar link changed from the Geoscape website to the Geoscape Hub.** The

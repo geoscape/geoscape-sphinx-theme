@@ -8,7 +8,7 @@ consuming ``conf.py`` only needs ``html_theme = "geoscape"``.
 """
 from pathlib import Path
 
-__version__ = "1.0.5"
+__version__ = "1.0.6"
 
 _THEME_DIR = Path(__file__).parent / "theme"
 
@@ -34,6 +34,10 @@ def _set_defaults(config):
     # the docs-home landing repo, where the sidebar title and docs-home
     # self-link are redundant with the topbar wordmark and the page's own H1.
     context["is_docs_home"] = _is_enabled(config, "docs_home", default=False)
+    # Resolve `singlehtml_search` to a real bool so `searchbox.html` can branch on
+    # it directly. Only meaningful on singlehtml builds (see setup()), but the
+    # template guard is harmless elsewhere. Defaults on.
+    context["singlehtml_search"] = _is_enabled(config, "singlehtml_search", default=True)
 
 
 def _is_enabled(config, option, default=True):
@@ -75,6 +79,15 @@ def setup(app):
     if _is_enabled(app.config, "show_image_preview"):
         app.add_css_file("image-preview.css")
         app.add_js_file("image-preview.js")
+    # In-page search is only useful on singlehtml builds — the multi-page html
+    # builder has Sphinx's real search — so link its file pair only there, and
+    # only when enabled. Gating on the builder keeps every html build's asset
+    # list byte-identical. `app.builder` is set by the time this runs (theme
+    # resolution at builder-inited, same point that reads html_theme_options).
+    builder_name = getattr(getattr(app, "builder", None), "name", None)
+    if builder_name == "singlehtml" and _is_enabled(app.config, "singlehtml_search", default=True):
+        app.add_css_file("singlehtml-search.css")
+        app.add_js_file("singlehtml-search.js")
     return {
         "version": __version__,
         "parallel_read_safe": True,

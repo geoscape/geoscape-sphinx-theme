@@ -20,4 +20,28 @@
   </div>
 </search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
+{%- elif singlehtml_search %}
+{#-
+  singlehtml builds have no search index or search.html, so the native box above
+  can't work. Render an in-page search instead: same sidebar control, but it
+  finds + highlights matches within this single page (see singlehtml-search.js,
+  linked only on singlehtml builds). Reuses gs-search-section / gs-search so all
+  the existing sidebar-search CSS applies. Unlike the native box this is NOT
+  hidden behind an inline reveal script — the feature's own external JS is
+  guaranteed present here, so it renders visible directly.
+-#}
+<search id="searchbox" class="gs-search-section" role="search">
+  <div class="searchformwrapper">
+    <form class="search gs-search gs-inpage-search" role="search">
+      <input type="text" name="q"
+             placeholder="{{ _('Search this page...') }}"
+             aria-label="{{ _('Search this page') }}"
+             autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <button type="submit" class="gs-search__submit" aria-label="{{ _('Search') }}" title="{{ _('Search') }}">
+        {#- lucide: search -#}
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      </button>
+    </form>
+  </div>
+</search>
 {%- endif %}

@@ -10,7 +10,7 @@ name = "geoscape-sphinx-theme"
 # Bumping this is what makes pip re-install the theme on consumers — a moved
 # git tag alone is NOT enough. Also update __version__ in
 # src/geoscape_sphinx_theme/__init__.py to the same value. See README "Releasing".
-version = "1.0.5"
+version = "1.0.6"
 description = "Shadcn-inspired Geoscape documentation theme for Sphinx (inherits from alabaster)."
 readme = "README.md"
 requires-python = ">=3.9"

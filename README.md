@@ -13,6 +13,9 @@ A shadcn-inspired Sphinx documentation theme for Geoscape docs. It inherits from
   directly under the site title
 - A zoomable, downloadable image preview overlay (wheel/pinch zoom anchored on
   the cursor, so it magnifies what you're reading on wide diagrams)
+- In-page search on `singlehtml` builds — the single-page builder has no search
+  index, so the theme gives its search box a find-and-highlight within the page
+  that mirrors the `html` search (same box, highlight, and "Hide Search Matches")
 - A mobile drawer and responsive layout
 
 It is the single source of truth for the theme — fix here once and every
@@ -90,10 +93,13 @@ template locally (a repo `_templates/navigation.html` wins over the theme's).
   html_theme_options = {
       "show_local_toc": False,      # hide the "On this page" sidebar ToC
       "show_image_preview": False,  # disable the click-to-zoom overlay
+      "singlehtml_search": False,   # drop the in-page search on singlehtml builds
   }
   ```
   With `show_image_preview` off, the overlay's CSS/JS aren't linked, so a page
-  that turns it off pays no parse cost.
+  that turns it off pays no parse cost. `singlehtml_search` only has any effect
+  on `singlehtml` builds (the `html` builder has Sphinx's own search); its CSS/JS
+  are likewise linked only when it's on and only on those builds.
 
 ## Releasing (propagating a theme change)
 

@@ -1,0 +1,28 @@
+/* In-page search (singlehtml builds only).
+   ==========================================================================
+
+   Linked only on singlehtml builds when `singlehtml_search` is on (see
+   __init__.py). The search box itself reuses .gs-search-section / .gs-search,
+   and the match highlight reuses .highlighted + the --highlight-* tokens, all
+   defined in geoscape.css — so nothing here re-declares the shared look. This
+   file only adds the two things specific to in-page search:
+     1. keeping a scrolled-to match clear of the fixed topbar, and
+     2. emphasising the "current" match while stepping through with Enter.
+   ========================================================================== */
+
+/* scrollIntoView({block:'center'}) usually clears the fixed topbar on its own,
+   but on short matches near the top of the page the browser can still tuck the
+   hit under it. scroll-margin-top reserves the topbar's height so the match is
+   never obscured. */
+div.body .highlighted {
+  scroll-margin-top: 4rem;
+}
+
+/* The match Enter last landed on: same amber fill, plus a ring so it stands out
+   from the other matches as you step through. Uses the theme's focus ring token
+   so it reads as "here" consistently in light and dark mode. */
+div.body .highlighted.gs-search-current {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+  border-radius: 3px;
+}
