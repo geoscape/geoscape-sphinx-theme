@@ -733,6 +733,20 @@ div.sphinxsidebar .gs-search-section {
   margin-bottom: 1.25rem;
 }
 
+/* Docs-home landing page: about.html suppresses the sidebar title, so the search
+   box becomes the FIRST sidebar element and alabaster's `#searchbox { margin:
+   1em 0 }` leaves it floating well below the content's relbar header. Pull it up
+   so its top lines up with that relbar. Both the sidebar (fixed, top:48px) and
+   the relbar are anchored to the same topbar bottom; the relbar clears it by 8px
+   while the search box otherwise clears it by ~30px (20px wrapper padding + a
+   ~10px intrinsic offset), so a -22px top margin aligns the two. The
+   `:first-child` guard confines this to the landing page (docs_geoscape) — every
+   other page keeps the title above the search, so its search is never the first
+   child. Specificity (1,1,1) intentionally beats alabaster's `#searchbox` rule. */
+div.sphinxsidebar #searchbox:first-child {
+  margin-top: -22px;
+}
+
 /* Sphinx injects `<p class="highlight-link"><a>Hide Search Matches</a></p>`
    INSIDE the search box after a search. It's left in normal flow so it can
    never overlap the "DOCUMENTATION" caption below — an earlier version pulled

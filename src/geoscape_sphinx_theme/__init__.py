@@ -28,6 +28,12 @@ def _set_defaults(config):
     context.setdefault("docs_home_label", "Geoscape Documentation")
     context.setdefault("hub_url", "https://hub.geoscape.com.au/")
     context.setdefault("hub_label", "Go to Hub")
+    # Resolve the `docs_home` theme option to a real bool for templates, so they
+    # can write `{% if is_docs_home %}` without repeating the string-form dance
+    # (`theme.conf` values arrive as strings — see `_is_enabled`). True only for
+    # the docs-home landing repo, where the sidebar title and docs-home
+    # self-link are redundant with the topbar wordmark and the page's own H1.
+    context["is_docs_home"] = _is_enabled(config, "docs_home", default=False)
 
 
 def _is_enabled(config, option, default=True):

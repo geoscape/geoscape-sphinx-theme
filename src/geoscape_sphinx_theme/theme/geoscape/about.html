@@ -1,0 +1,11 @@
+{#-
+  Sidebar "about" block (overrides alabaster's about.html).
+
+  On the docs-home landing repo (is_docs_home) alabaster's project-title block is
+  redundant: the topbar wordmark already carries the brand and the page's own H1
+  repeats it, so suppress the whole block there. Everywhere else, defer to
+  alabaster's about.html verbatim — this override adds nothing but the guard.
+-#}
+{%- if not is_docs_home %}
+{%- include "alabaster/about.html" %}
+{%- endif %}

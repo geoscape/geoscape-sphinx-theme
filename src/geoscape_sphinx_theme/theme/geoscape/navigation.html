@@ -24,7 +24,9 @@
   {%- endif %}
 
   <ul class="gs-nav__extra">
-    {%- if docs_home_url %}
+    {#- Skip the docs-home link on the docs-home repo itself (is_docs_home): it
+        would point at the page you're already on. Rendered everywhere else. -#}
+    {%- if docs_home_url and not is_docs_home %}
     <li>
       <a href="{{ docs_home_url }}">
         {#- lucide: home -#}
