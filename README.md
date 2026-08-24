@@ -16,6 +16,9 @@ A shadcn-inspired Sphinx documentation theme for Geoscape docs. It inherits from
 - In-page search on `singlehtml` builds — the single-page builder has no search
   index, so the theme gives its search box a find-and-highlight within the page
   that mirrors the `html` search (same box, highlight, and "Hide Search Matches")
+- PostHog product analytics on by default — every consuming site reports
+  pageviews to Geoscape's shared project on its next build; overridable or
+  opt-out per repo
 - A mobile drawer and responsive layout
 
 It is the single source of truth for the theme — fix here once and every
@@ -100,6 +103,24 @@ template locally (a repo `_templates/navigation.html` wins over the theme's).
   that turns it off pays no parse cost. `singlehtml_search` only has any effect
   on `singlehtml` builds (the `html` builder has Sphinx's own search); its CSS/JS
   are likewise linked only when it's on and only on those builds.
+- **Analytics (PostHog)**: **on by default**. The theme ships Geoscape's shared
+  PostHog *project* key (the client-side `phc_...` key — write-only and safe to
+  expose in browser code, it's not a secret) and loads the analytics snippet on
+  every page, capturing pageviews + autocapture with
+  `person_profiles: 'identified_only'` (anonymous doc traffic, no per-visitor
+  person profile). Ingestion goes through Geoscape's managed PostHog reverse
+  proxy (`ph.geoscape.com.au`) so it isn't blocked by ad-blockers. No per-repo
+  setup is required. Override in `html_theme_options` if needed:
+  ```python
+  html_theme_options = {
+      "posthog_key": "",                            # opt this repo out entirely
+      # "posthog_key": "phc_other_project_key",     # or redirect to another project
+      # "posthog_host": "https://us.i.posthog.com", # bypass the proxy / other host
+  }
+  ```
+  Local/dev builds are skipped automatically — the snippet only initializes on
+  real hosts, so `localhost`, `127.x`, `0.0.0.0`, `::1`, and `file://` builds
+  load nothing and send nothing. Read the Docs preview domains still track.
 
 ## Releasing (propagating a theme change)
 
