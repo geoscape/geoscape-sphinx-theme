@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.0.7
+
+- PostHog product analytics, on by default across all consuming docs. The theme
+  ships Geoscape's shared PostHog *project* key (a client-side, write-only
+  `phc_...` key — safe to expose) and loads the standard PostHog snippet on every
+  page: pageviews + autocapture, `person_profiles: 'identified_only'` so
+  anonymous doc traffic doesn't mint a person profile each visit. Ingestion goes
+  through Geoscape's managed PostHog reverse proxy (`ph.geoscape.com.au`) so the
+  analytics survive ad-blockers. No per-repo `conf.py` change is needed — sites
+  report on their next build. A repo can override in `html_theme_options`: set
+  `posthog_key` to `""` to opt out, or to another key to redirect; set
+  `posthog_host` to point ingestion elsewhere. Local/dev builds (`localhost`,
+  `127.x`, `0.0.0.0`, `::1`, `file://`) are skipped automatically so they don't
+  pollute the project; Read the Docs preview domains still report.
+- Bumping the moving `v1` tag propagates this to consuming repos on next build.
+
 ## v1.0.6
 
 - In-page search for `singlehtml` builds. The `singlehtml` builder produces no

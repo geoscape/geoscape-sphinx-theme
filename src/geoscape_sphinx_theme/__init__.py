@@ -8,9 +8,25 @@ consuming ``conf.py`` only needs ``html_theme = "geoscape"``.
 """
 from pathlib import Path
 
-__version__ = "1.0.6"
+__version__ = "1.0.7"
 
 _THEME_DIR = Path(__file__).parent / "theme"
+
+# Geoscape's shared PostHog project (US cloud). This is a client-side, write-only
+# *project* key: it can only ingest events, never read data, and it already ships
+# in the browser JS of every published page — so it is safe to hardcode here even
+# though this repo is public. Hardcoding (rather than a per-repo conf.py setting)
+# is deliberate: every consuming site reports to one project on its next build
+# with no per-repo change. A repo can still override `posthog_key` in
+# html_theme_options — set it to "" to opt out, or to another phc_ key to
+# redirect its analytics elsewhere.
+_POSTHOG_KEY = "phc_vb5q8MQ3RazE6ownA9Gpdxb8GiETgbF9pHNTH6BWnmVe"
+# api_host is Geoscape's managed PostHog reverse proxy (not us.i.posthog.com):
+# ingestion + the snippet's static assets are served from this domain, which is
+# what lets the analytics survive ad-blockers. The proxy also serves /static/,
+# so the loader in layout.html fetches array.js from here too. ui_host (set in
+# the template) still points at the real PostHog app so in-app links resolve.
+_POSTHOG_HOST = "https://ph.geoscape.com.au"
 
 
 def _set_defaults(config):
@@ -38,6 +54,18 @@ def _set_defaults(config):
     # it directly. Only meaningful on singlehtml builds (see setup()), but the
     # template guard is harmless elsewhere. Defaults on.
     context["singlehtml_search"] = _is_enabled(config, "singlehtml_search", default=True)
+    # PostHog analytics. These are string values, not bools, so read them off
+    # html_theme_options directly. Default ON with Geoscape's shared project key
+    # (see _POSTHOG_KEY above): if a repo did not set `posthog_key` at all
+    # (get() -> None) we fall back to it. A repo that sets it explicitly wins,
+    # INCLUDING setting it to "" to opt out — hence the None check rather than a
+    # plain `or`, which couldn't tell "unset" from "deliberately blank". The
+    # snippet in layout.html only renders when the resolved key is truthy.
+    options = config.html_theme_options or {}
+    raw_key = options.get("posthog_key")
+    context["posthog_key"] = (_POSTHOG_KEY if raw_key is None else str(raw_key)).strip()
+    raw_host = options.get("posthog_host")
+    context["posthog_host"] = (str(raw_host).strip() if raw_host else _POSTHOG_HOST)
 
 
 def _is_enabled(config, option, default=True):
