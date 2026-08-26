@@ -58,7 +58,10 @@
 
   /* Layout */
   --content-padding: 30px;
-  --reading-width: 75ch;
+  /* Max width for the content column on wide→very-wide screens; the column is
+     capped at this and anchored left (see the min-width:1441px rule). Only set
+     in the large-desktop / ultra-wide breakpoints — unused below 1441px. */
+  --content-measure: 82rem;
   /* Matches the hub's `SIDEBAR_WIDTH = "16rem"` (sidebar.tsx). Fixed rather
      than scaled per breakpoint: the hub's sidebar is one width at every
      desktop size, and a nav column that grows to 360px on a wide screen reads
@@ -66,11 +69,7 @@
   --sidebar-width: 16rem; /* 256px — hub SIDEBAR_WIDTH */
   /* Hub SIDEBAR_WIDTH_MOBILE = "18rem"; used by the drawer below. */
   --sidebar-width-mobile: 18rem; /* 288px */
-  /* Fill the column the sidebar leaves rather than capping at a fixed pixel
-     width. These are reference docs whose widest content is 8-column data
-     dictionaries; a 1150px cap left ~280px of dead space on a 1800px window
-     while a table right next to it was still scrolling. Prose is kept readable
-     by --reading-width on <p> instead, so long lines don't follow from this. */
+  /* Reading measure is enforced on div.body via --content-measure, not here. */
   --content-max-width: 100%;
   /* Radius scale (hub --radius: 0.625rem) */
   --radius: 0.625rem;
@@ -154,7 +153,6 @@ body {
 
 p {
   margin: 0 0 1em 0;
-  max-width: var(--reading-width);
 }
 
 /* Alabaster sets `div.body p, div.body dd, div.body li { line-height: 1.4em }`,
@@ -173,7 +171,6 @@ div.body .line-block .line {
    same vertical rhythm as <p> rather than basic.css's symmetric 1em/1em. */
 div.body .line-block {
   margin: 0 0 1em 0;
-  max-width: var(--reading-width);
 }
 
 ::selection {
@@ -278,12 +275,50 @@ a:focus-visible {
 div.body {
   background-color: var(--bg);
   color: var(--text);
-  padding: 0 var(--content-padding);
+  padding-block: 0;
+  padding-inline: var(--content-padding);
+  /* On wide→very-wide screens the column is capped at --content-measure and kept
+     anchored left (surplus becomes right-hand margin, not centred). See the
+     min-width:1441px rule below. Below that it fills the available width. */
 }
 
 div.body img {
   max-width: 100%;
   height: auto;
+}
+
+/* Centre images that carry no explicit alignment — bare `.. image::` images
+   and graphviz diagrams. Author-set :align: left/right/center get docutils'
+   own alignment classes and are deliberately left untouched. */
+div.body img:not(.align-left):not(.align-right):not(.align-center) {
+  display: block;
+  margin-inline: auto;
+}
+
+/* Un-sized images ballooned once the content area widened (the old narrow
+   layout capped them implicitly by column width). Cap the height only when no
+   dimensions were specified — no width/height attribute and no inline style.
+   Readers can click to zoom via the image preview. Graphviz diagrams are
+   excluded; they size to their own rendered content. */
+div.body img:not([width]):not([height]):not([style]):not(.graphviz) {
+  max-height: 480px;
+  width: auto;
+}
+
+/* Tables: centre everything except author-set align-left/right. This must be
+   stated here (not left to docutils' own `table.align-center { margin: auto }`)
+   because geoscape.js wraps every table in `.gs-table-wrap`, and
+   `.gs-table-wrap > table.docutils { margin: 0 }` out-specifies docutils' rule
+   and would otherwise pin even align-center tables to the left.
+   Centre the caption (the table's "header" title) to match the centred table. */
+div.body table.docutils.align-default,
+div.body table.docutils.align-center,
+div.body table.docutils:not(.align-left):not(.align-right):not(.align-center) {
+  margin-inline: auto;
+}
+div.body table.docutils.align-default > caption,
+div.body table.docutils.align-center > caption {
+  text-align: center;
 }
 
 /* Alabaster's mobile rule (max-width: 875px) zeroes `ul { margin-left }` for
@@ -1145,6 +1180,17 @@ aside.footnote > p {
   margin-bottom: 0;
 }
 
+/* A footnote sitting directly beneath a centred image reads as that image's
+   caption, so centre the entry to line up with the image. The entry is already
+   a flex row, so justify-content does it. Scoped to footnotes that immediately
+   follow a centred or un-aligned image (align-left/right images keep theirs
+   flush), plus a footnote-list that itself carries align-center. */
+div.body img.align-center + aside.footnote-list aside.footnote,
+div.body img:not(.align-left):not(.align-right):not(.align-center) + aside.footnote-list aside.footnote,
+div.body aside.footnote-list.align-center aside.footnote {
+  justify-content: center;
+}
+
 aside.footnote:target {
   /* basic.css paints a #ffa block highlight; use the theme's own accent so it
      works in dark mode too. */
@@ -1270,7 +1316,6 @@ dl.glossary dd {
 @media (min-width: 1025px) and (max-width: 1280px) {
   :root {
     --content-padding: 30px;
-    --reading-width: 72ch;
   }
 }
 
@@ -1278,7 +1323,6 @@ dl.glossary dd {
 @media (min-width: 1281px) and (max-width: 1440px) {
   :root {
     --content-padding: 40px;
-    --reading-width: 75ch;
   }
 }
 
@@ -1286,7 +1330,7 @@ dl.glossary dd {
 @media (min-width: 1441px) and (max-width: 1920px) {
   :root {
     --content-padding: 56px;
-    --reading-width: 80ch;
+    --content-measure: 82rem;
   }
 }
 
@@ -1294,7 +1338,16 @@ dl.glossary dd {
 @media (min-width: 1921px) {
   :root {
     --content-padding: 64px;
-    --reading-width: 85ch;
+    --content-measure: 96rem;
+  }
+}
+
+/* Wide→very-wide only: cap the content column and keep it anchored left, so the
+   surplus width falls on the right rather than stretching prose edge-to-edge.
+   Below 1441px the column simply fills the available width. */
+@media (min-width: 1441px) {
+  div.body {
+    max-width: var(--content-measure);
   }
 }
 
