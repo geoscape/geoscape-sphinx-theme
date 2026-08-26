@@ -131,7 +131,12 @@ html.dark-mode-pre {
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 20px;
+  /* Clear the fixed topbar (--topbar-height) plus a little breathing room, so
+     an anchored heading — e.g. a jump from the "On this page" panel — lands
+     just below the bar instead of hidden behind it. At 20px the target sat
+     under the 48px topbar, so second-level toc jumps looked like they did
+     nothing. */
+  scroll-padding-top: calc(var(--topbar-height) + 16px);
 }
 
 body {
