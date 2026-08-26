@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.9
+
+- Fix: collapsing the sidebar no longer lets the content sprawl to the full
+  viewport width. The collapsed state was overriding the content column's
+  `max-width` to 100%, discarding the reading-measure cap; it now keeps the same
+  cap (`--content-measure` on wide→very-wide screens, full width below that), so
+  collapsing reclaims the sidebar's space only up to the reading measure.
+- Bumping the moving `v1` tag propagates this to consuming repos on next build.
+
 ## v1.0.8
 
 - Collapsible content sections. Each top-level subsection (an `h2`) becomes

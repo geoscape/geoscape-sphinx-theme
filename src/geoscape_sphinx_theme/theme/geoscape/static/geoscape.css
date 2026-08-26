@@ -1533,11 +1533,10 @@ div.bodywrapper {
         margin-left: 0 !important;
     }
 
-    /* Without this the content column stays at its old max-width and the
-       reclaimed space just becomes whitespace. */
-    body[data-sidebar-collapsed] div.body {
-        max-width: 100%;
-    }
+    /* Deliberately no max-width override here: the column keeps its normal cap
+       (--content-measure on wide→very-wide screens, 100% below that) so
+       collapsing the sidebar reclaims space up to the reading measure rather
+       than sprawling to the full viewport width. */
 }
 
 /* "Go to Hub" link in the topbar — a small, compact pill sitting just before
