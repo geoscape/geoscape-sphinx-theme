@@ -1,0 +1,73 @@
+/* ==========================================================================
+   Collapsible content sections
+
+   Companion to collapsible-sections.js; both are only linked into the page when
+   the theme's `collapsible_sections` option is on. Tokens (--primary,
+   --text-muted, --radius-sm) come from geoscape.css, so light/dark switching is
+   automatic.
+
+   collapsible-sections.js wraps each h2's text in a <button.gs-section-toggle>
+   (leaving the ¶ permalink outside it) and adds .gs-collapsible-section to the
+   <section>, toggling .gs-collapsed on click.
+   ========================================================================== */
+
+/* The toggle sits inside the <h2>, so strip all button chrome and inherit the
+   heading's own type — it should read as the heading, just clickable. */
+.gs-section-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.gs-section-toggle:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Chevron affordance, drawn from the current text colour so it tracks the
+   heading in both themes. Points down when expanded; rotates to point right
+   when the section is collapsed. */
+.gs-section-toggle::before {
+  content: "";
+  flex: none;
+  width: 0.6em;
+  height: 0.6em;
+  background-color: currentColor;
+  /* lucide: chevron-down */
+  -webkit-mask: no-repeat center / contain
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>');
+  mask: no-repeat center / contain
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>');
+  color: var(--text-muted);
+  transition: transform 0.15s ease;
+}
+
+.gs-collapsible-section.gs-collapsed > h2 .gs-section-toggle::before {
+  transform: rotate(-90deg);
+}
+
+/* Collapsed: hide everything in the section except its heading (the first
+   child). Nested h3+ content collapses along with it. */
+.gs-collapsible-section.gs-collapsed > :not(:first-child) {
+  display: none;
+}
+
+/* Never lose content in a print/PDF export: expand every section and drop the
+   chevron. */
+@media print {
+  .gs-collapsible-section.gs-collapsed > * {
+    display: revert;
+  }
+  .gs-section-toggle::before {
+    display: none;
+  }
+}

@@ -90,13 +90,14 @@ template locally (a repo `_templates/navigation.html` wins over the theme's).
 - **Extra links**: `html_theme_options = {"extra_nav_links": {...}}`.
 - **Extra CSS**: `html_css_files = ["your-overrides.css"]` — loads after the
   theme CSS, so it wins.
-- **Feature toggles**: both default on; set to `False` in `html_theme_options`
+- **Feature toggles**: all default on; set to `False` in `html_theme_options`
   to turn off.
   ```python
   html_theme_options = {
-      "show_local_toc": False,      # hide the "On this page" sidebar ToC
-      "show_image_preview": False,  # disable the click-to-zoom overlay
-      "singlehtml_search": False,   # drop the in-page search on singlehtml builds
+      "show_local_toc": False,        # hide the "On this page" sidebar ToC
+      "show_image_preview": False,    # disable the click-to-zoom overlay
+      "singlehtml_search": False,     # drop the in-page search on singlehtml builds
+      "collapsible_sections": False,  # make h2 subsections non-collapsible
   }
   ```
   With `show_image_preview` off, the overlay's CSS/JS aren't linked, so a page
@@ -121,6 +122,15 @@ template locally (a repo `_templates/navigation.html` wins over the theme's).
   Local/dev builds are skipped automatically — the snippet only initializes on
   real hosts, so `localhost`, `127.x`, `0.0.0.0`, `::1`, and `file://` builds
   load nothing and send nothing. Read the Docs preview domains still track.
+- **Docs-home marker**: `html_theme_options = {"docs_home": True}` — set only on
+  the docs-home landing repo. It drops the sidebar project-title block and the
+  self-referential "back to docs home" link (both redundant on the site's own
+  home page). Leave unset (`False`) everywhere else.
+- **Inherited alabaster options** (all default on): `show_relbars` (previous /
+  next / parent relation bars at the top and bottom of each page),
+  `fixed_sidebar` (sidebar stays put while content scrolls), and
+  `sidebar_includehidden` (include `:hidden:` toctree entries in the sidebar
+  nav). Set any to `False` in `html_theme_options` to turn it off.
 
 ## Releasing (propagating a theme change)
 

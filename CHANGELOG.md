@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.0.8
+
+- Collapsible content sections. Each top-level subsection (an `h2`) becomes
+  click-to-collapse, expanded by default, with a chevron affordance. The theme
+  wraps the headings itself — authors write nothing. The `h2` stays a real
+  heading and the interactive control is a nested `<button>` (keyboard- and
+  screen-reader-friendly); the `¶` permalink still navigates. Collapsed content
+  is expanded again for print/PDF. Controlled by a new `collapsible_sections`
+  theme option (default on); when off, the feature's CSS/JS aren't linked.
+- Bumping the moving `v1` tag propagates this to consuming repos on next build.
+
 ## v1.0.7
 
 - PostHog product analytics, on by default across all consuming docs. The theme

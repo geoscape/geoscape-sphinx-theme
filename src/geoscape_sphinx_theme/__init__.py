@@ -8,7 +8,7 @@ consuming ``conf.py`` only needs ``html_theme = "geoscape"``.
 """
 from pathlib import Path
 
-__version__ = "1.0.7"
+__version__ = "1.0.8"
 
 _THEME_DIR = Path(__file__).parent / "theme"
 
@@ -116,6 +116,12 @@ def setup(app):
     if builder_name == "singlehtml" and _is_enabled(app.config, "singlehtml_search", default=True):
         app.add_css_file("singlehtml-search.css")
         app.add_js_file("singlehtml-search.js")
+    # Collapsible sections is another optional feature (own file pair, linked
+    # only when on). Unlike singlehtml-search it is not builder-gated — it
+    # applies to both html and singlehtml.
+    if _is_enabled(app.config, "collapsible_sections", default=True):
+        app.add_css_file("collapsible-sections.css")
+        app.add_js_file("collapsible-sections.js")
     return {
         "version": __version__,
         "parallel_read_safe": True,
