@@ -292,12 +292,15 @@ div.body img {
   }
 }
 
+/* Docutils wraps any indented block (including indented bullet/definition
+   lists) in a <blockquote>, and the Geoscape docs use that indentation purely
+   for structure — there are no prose "quotes". So render blockquotes as plain
+   indented body text: no left rule, no muted colour, no italic. This keeps
+   indented lists visually identical to normal lists and matches the previous
+   (alabaster) indent-only behaviour. */
 blockquote {
-  border-left: 3px solid var(--border-strong);
   margin: 1em 0;
-  padding: 0.5em 1em;
-  color: var(--text-muted);
-  font-style: italic;
+  padding-left: 1.5em;
 }
 
 /* Table-of-contents / topic boxes (e.g. page contents directive):
