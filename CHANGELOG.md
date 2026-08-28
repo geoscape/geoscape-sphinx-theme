@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.10
+
+- Move PostHog analytics to "prod" project. Only the shared client-side
+  `phc_...` project key changes; the same US Cloud instance and managed reverse
+  proxy (`ph.geoscape.com.au`) are unchanged, so nothing else in the loader
+  moves. No per-repo `conf.py` change is needed — sites report to the new
+  project on their next build.
+- Bumping the moving `v1` tag propagates this to consuming repos on next build.
+
 ## v1.0.9
 
 - Fix: collapsing the sidebar no longer lets the content sprawl to the full

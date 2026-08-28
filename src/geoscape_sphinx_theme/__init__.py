@@ -8,7 +8,7 @@ consuming ``conf.py`` only needs ``html_theme = "geoscape"``.
 """
 from pathlib import Path
 
-__version__ = "1.0.9"
+__version__ = "1.0.10"
 
 _THEME_DIR = Path(__file__).parent / "theme"
 
@@ -20,7 +20,7 @@ _THEME_DIR = Path(__file__).parent / "theme"
 # with no per-repo change. A repo can still override `posthog_key` in
 # html_theme_options — set it to "" to opt out, or to another phc_ key to
 # redirect its analytics elsewhere.
-_POSTHOG_KEY = "phc_vb5q8MQ3RazE6ownA9Gpdxb8GiETgbF9pHNTH6BWnmVe"
+_POSTHOG_KEY = "phc_PBlEuuuYP10YmCkrHZhhDzx2GuUVvzK79hyDmXzDwgS"
 # api_host is Geoscape's managed PostHog reverse proxy (not us.i.posthog.com):
 # ingestion + the snippet's static assets are served from this domain, which is
 # what lets the analytics survive ad-blockers. The proxy also serves /static/,
