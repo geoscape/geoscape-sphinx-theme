@@ -27,11 +27,24 @@ set -euo pipefail
 
 # --- args -------------------------------------------------------------------
 CONSUMER="${1:-}"
-BUILDER="${2:-singlehtml}"
+BUILDER="${2:-}"
 
 if [[ -z "$CONSUMER" ]]; then
   echo "usage: $0 <consumer-repo-path> [builder]" >&2
   exit 2
+fi
+
+# Default the builder to whatever the consumer's .readthedocs.yaml declares
+# (sphinx.builder), so a local preview matches what RTD actually serves. Falls
+# back to "singlehtml" if the key is absent (RTD's own default is "html", but
+# these repos overwhelmingly use singlehtml — pass an explicit 2nd arg to force).
+if [[ -z "$BUILDER" ]]; then
+  RTD_YAML="$CONSUMER/.readthedocs.yaml"
+  [[ -f "$RTD_YAML" ]] || RTD_YAML="$CONSUMER/.readthedocs.yml"
+  if [[ -f "$RTD_YAML" ]]; then
+    BUILDER="$(sed -n 's/^[[:space:]]*builder:[[:space:]]*["'\'']*\([a-z]*\).*/\1/p' "$RTD_YAML" | head -1)"
+  fi
+  BUILDER="${BUILDER:-singlehtml}"
 fi
 if [[ ! -f "$CONSUMER/docs/source/conf.py" ]]; then
   echo "error: $CONSUMER/docs/source/conf.py not found — not a Sphinx docs repo?" >&2
