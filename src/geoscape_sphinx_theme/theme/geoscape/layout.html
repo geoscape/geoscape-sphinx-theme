@@ -57,10 +57,16 @@
   </button>
   {#- Wordmark anchored beside the toggle. margin-right:auto lives on .gs-brand
       (not the toggle), so it pushes the hub link + theme menu to the far right. -#}
+  {#- Wordmark SVG: "Geoscape" is vector paths on currentColor (follows the
+      brand text colour into dark mode); "Docs" is a live DM Sans <text> node on
+      var(--primary) so it stays the signature blue and adapts to the theme. -#}
+  {%- set brand_svg -%}
+  <svg class="gs-brand__logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 116 21" role="img" aria-label="Geoscape Docs" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g transform="matrix(0.186741,0,0,0.186741,31.4769,10.1843)"><path d="M0,16.219L-5.57,16.219L-5.57,16.218L-5.563,16.218L0,16.219ZM0,16.219L-5.57,16.219L-5.57,16.218L-5.563,16.218L0,16.219ZM-31.667,25.863C-40.794,25.645 -47.742,18.908 -47.742,8.11C-47.742,-2.479 -40.919,-9.471 -31.667,-9.651C-22.414,-9.471 -15.59,-2.479 -15.59,8.11C-15.59,18.908 -22.538,25.645 -31.667,25.863M-31.667,-14.508C-44.775,-14.508 -53.511,-5.281 -53.511,8.11C-53.511,21.375 -44.661,30.524 -31.667,30.694C-18.672,30.524 -9.823,21.375 -9.823,8.11C-9.823,-5.281 -18.559,-14.508 -31.667,-14.508M31.531,17.423C31.531,25.407 24.163,30.728 12.967,30.728C0.399,30.728 -5.623,23.462 -5.57,16.219L0,16.219C0.39,22.504 5.276,25.903 13.438,25.903C21.364,25.903 25.654,22.328 25.654,17.507C25.654,4.282 -4.138,14.264 -4.138,-2.867C-4.138,-10.104 3.235,-14.51 12.746,-14.51C21.33,-14.51 30.572,-10.236 30.451,-0.015L25.02,-0.015C25.02,-6.26 19.275,-9.854 12.56,-9.854C5.937,-9.854 1.646,-7.026 1.646,-2.786C1.646,9.108 31.531,-0.874 31.531,17.423M-96.393,3.793C-94.793,-4.336 -88.665,-9.497 -80.741,-9.651C-72.816,-9.497 -66.688,-4.336 -65.089,3.793L-96.393,3.793ZM-80.741,-14.508C-93.85,-14.508 -102.585,-5.281 -102.585,8.11C-102.585,21.375 -93.735,30.524 -80.741,30.694C-70.612,30.562 -63.025,24.959 -60.16,16.219L-66.249,16.219C-68.787,22.181 -74.192,25.706 -80.741,25.863C-89.623,25.651 -96.422,19.255 -96.782,8.96L-58.933,8.96C-58.924,8.675 -58.897,8.399 -58.897,8.11C-58.897,-5.281 -67.633,-14.508 -80.741,-14.508M42.063,8.11C42.063,18.908 49.01,25.645 58.138,25.863C64.692,25.706 70.104,22.177 72.647,16.21L78.722,16.21C75.859,24.955 68.271,30.561 58.138,30.694C45.145,30.524 36.295,21.375 36.295,8.11C36.295,-5.281 45.03,-14.508 58.138,-14.508C68.376,-14.508 75.922,-8.866 78.747,-0.024L72.619,-0.024C70.086,-5.917 64.737,-9.523 58.138,-9.651C48.887,-9.471 42.063,-2.479 42.063,8.11M191.691,3.793C193.291,-4.336 199.419,-9.497 207.343,-9.651C215.268,-9.497 221.396,-4.336 222.996,3.793L191.691,3.793ZM229.187,8.11C229.187,-5.281 220.452,-14.508 207.343,-14.508C194.235,-14.508 185.5,-5.281 185.5,8.11C185.5,21.375 194.349,30.524 207.343,30.694C217.472,30.562 225.059,24.959 227.925,16.219L221.836,16.219C219.297,22.181 213.892,25.706 207.343,25.863C198.462,25.651 191.662,19.255 191.302,8.96L229.152,8.96C229.16,8.675 229.187,8.399 229.187,8.11M105.758,25.863C96.629,25.645 89.68,18.908 89.68,8.11C89.68,-2.479 96.505,-9.471 105.758,-9.651C115.009,-9.471 121.833,-2.479 121.833,8.11C121.833,18.908 114.886,25.645 105.758,25.863M127.263,22.359L127.263,-13.43L121.838,-13.43L121.838,-7.376C118.038,-11.592 112.501,-14.508 105.758,-14.508C92.648,-14.508 83.913,-5.281 83.913,8.11C83.913,21.375 92.763,30.524 105.758,30.694C112.461,30.606 118.029,27.667 121.858,23.454C121.968,27.252 124.164,29.602 128.066,29.602L131.89,29.602L131.89,24.437L129.665,24.437C128.154,24.437 127.263,23.771 127.263,22.359M158.501,25.863C149.373,25.645 142.426,18.908 142.426,8.11C142.426,-2.479 149.25,-9.471 158.501,-9.651C167.754,-9.471 174.579,-2.479 174.579,8.11C174.579,18.908 167.63,25.645 158.501,25.863M158.501,-14.508C151.761,-14.508 146.227,-11.594 142.426,-7.382L142.426,-13.43L136.994,-13.43L136.994,49.109L142.426,49.109L142.426,23.486C146.254,27.68 151.813,30.606 158.501,30.694C171.496,30.524 180.346,21.375 180.346,8.11C180.346,-5.281 171.61,-14.508 158.501,-14.508M-133.623,3.793L-107.624,3.793C-109.141,19.466 -121.576,30.683 -137.442,30.723C-154.387,30.68 -167.421,17.893 -167.421,0.542C-167.421,-16.589 -154.514,-29.663 -137.442,-29.663C-123.972,-29.663 -113.125,-21.517 -109.137,-9.671L-115.254,-9.671C-118.861,-18.611 -127.206,-24.508 -137.442,-24.508C-151.202,-24.508 -161.562,-13.845 -161.562,0.542C-161.562,15.032 -151.032,25.466 -137.442,25.555C-126.671,25.485 -117.844,18.9 -114.638,8.96L-133.623,8.96L-133.623,3.793Z" style="fill:currentColor;fill-rule:nonzero;"/></g><text x="76" y="16.5" fill="var(--primary, #1b69da)" font-family="'DM Sans', sans-serif" font-size="17" font-weight="600" letter-spacing="-0.5">Docs</text></svg>
+  {%- endset -%}
   {%- if docs_home_url %}
-  <a class="gs-brand" href="{{ docs_home_url }}">Geoscape <span class="gs-brand__docs">DOCS</span></a>
+  <a class="gs-brand" href="{{ docs_home_url }}" aria-label="Geoscape Docs">{{ brand_svg }}</a>
   {%- else %}
-  <span class="gs-brand">Geoscape <span class="gs-brand__docs">DOCS</span></span>
+  <span class="gs-brand">{{ brand_svg }}</span>
   {%- endif %}
   {%- if hub_url %}
   <a class="gs-topbar-link" href="{{ hub_url }}" target="_blank" rel="noopener noreferrer">
@@ -69,15 +75,13 @@
     <span class="gs-topbar-link__label">{{ hub_label | default('Go to Hub') }}</span>
   </a>
   {%- endif %}
-  {#- Theme menu: a single trigger showing the current mode's icon, opening a
-      Light / Dark / System dropdown — mirrors the hub front-end. The three
-      icons are defined once in the trigger; JS shows only the active one. -#}
+  {#- Theme toggle: a single button that cycles Light -> Dark -> System on each
+      click (no dropdown). The three icons are defined once in the trigger; JS
+      shows only the active one and keeps the aria-label / title in sync. -#}
   <div class="gs-theme">
     <button type="button"
             class="gs-theme__trigger"
             aria-label="Colour theme"
-            aria-haspopup="menu"
-            aria-expanded="false"
             title="Colour theme">
       {#- lucide: sun -#}
       <svg class="gs-theme__icon" data-theme-icon="light" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
@@ -86,11 +90,6 @@
       {#- lucide: monitor -#}
       <svg class="gs-theme__icon" data-theme-icon="auto" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
     </button>
-    <div class="gs-theme__menu" role="menu" aria-label="Colour theme" hidden>
-      <button type="button" class="gs-theme__item" role="menuitemradio" data-theme-value="light" aria-checked="false">Light</button>
-      <button type="button" class="gs-theme__item" role="menuitemradio" data-theme-value="dark" aria-checked="false">Dark</button>
-      <button type="button" class="gs-theme__item" role="menuitemradio" data-theme-value="auto" aria-checked="false">System</button>
-    </div>
   </div>
 </header>
 <div class="gs-backdrop" hidden></div>

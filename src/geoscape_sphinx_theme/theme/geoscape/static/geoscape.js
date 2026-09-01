@@ -57,11 +57,16 @@
         var active = ic.getAttribute('data-theme-icon') === state;
         ic.classList.toggle('gs-theme__icon--hidden', !active);
       });
-      /* Menu radio state. */
-      var items = root.querySelectorAll('.gs-theme__item');
-      Array.prototype.forEach.call(items, function (it) {
-        it.setAttribute('aria-checked', it.getAttribute('data-theme-value') === state ? 'true' : 'false');
-      });
+      /* Keep the trigger's label/title in sync with the current mode so the
+         click-to-cycle control is discoverable (announces mode + next action). */
+      var trigger = root.querySelector('.gs-theme__trigger');
+      if (trigger) {
+        var LABELS = { light: 'Light', dark: 'Dark', auto: 'System' };
+        var next = STATES[(STATES.indexOf(state) + 1) % STATES.length];
+        var msg = 'Colour theme: ' + LABELS[state] + ' (click for ' + LABELS[next] + ')';
+        trigger.setAttribute('aria-label', msg);
+        trigger.setAttribute('title', msg);
+      }
     }
   }
 
@@ -120,6 +125,101 @@
     });
   }
 
+  /* Multi-doc singlehtml stitches chapters onto one page and emits local-ToC
+     section links as `#document-<chapter>#<section>` — a double fragment the
+     browser can't resolve. The section keeps its own id on the merged page, so
+     collapse `#a#b` -> `#b`. Single-hash hrefs (html builds, top-level entries)
+     are untouched. */
+  function fixLocalTocAnchors() {
+    var links = document.querySelectorAll('.gs-nav__local a[href]');
+    Array.prototype.forEach.call(links, function (a) {
+      var href = a.getAttribute('href');
+      if (href.indexOf('#') === -1) return;
+      var last = href.lastIndexOf('#');
+      if (last > 0) a.setAttribute('href', href.slice(last));
+    });
+  }
+
+  /* In multi-doc singlehtml the local ToC's top level is the whole chapter
+     list (already in the sidebar) with every chapter's sections at once. Scope
+     it to the chapter currently at the top of the viewport (scrollspy) so it
+     reads as a per-page contents list. Gated on all top-level entries being
+     `#document-<chapter>` anchors, so html/single-doc builds are a no-op; the
+     `gs-local-scoped` class means a no-JS build keeps the full list. */
+  function scopeLocalToc() {
+    var local = document.querySelector('.gs-nav__local');
+    if (!local) return;
+    var topList = local.querySelector(':scope > ul');
+    if (!topList) return;
+
+    var chapters = Array.prototype.slice.call(topList.children)
+      .filter(function (li) { return li.tagName === 'LI'; })
+      .map(function (li) {
+        var a = li.querySelector(':scope > a');
+        var m = a && /^#(document-[^#]+)$/.exec(a.getAttribute('href') || '');
+        return m ? { li: li, target: document.getElementById(m[1]) } : null;
+      });
+    /* Not the multi-doc form unless every top-level entry is a chapter. */
+    if (!chapters.length || chapters.indexOf(null) !== -1) return;
+
+    local.classList.add('gs-local-scoped');
+    var nav = local.closest('.gs-nav');
+
+    /* Chapter whose heading has scrolled up past the line below the sticky
+       topbar; null while still above the first chapter (e.g. the page top /
+       master-doc landing), so no chapter's sections show there. */
+    function currentByScroll() {
+      var offset = 120;
+      var active = null;
+      chapters.forEach(function (c) {
+        if (c.target && c.target.getBoundingClientRect().top - offset <= 0) active = c;
+      });
+      return active;
+    }
+
+    function chapterContaining(el) {
+      for (var i = 0; i < chapters.length; i++) {
+        if (chapters[i].target && chapters[i].target.contains(el)) return chapters[i];
+      }
+      return null;
+    }
+
+    function render(active) {
+      chapters.forEach(function (c) {
+        c.li.classList.toggle('gs-toc-active', c === active);
+      });
+      /* No active chapter, or one with no sections: hide the panel rather than
+         show a bare heading. */
+      if (nav) nav.classList.toggle('gs-local-empty', !active || !active.li.querySelector(':scope > ul'));
+    }
+
+    /* While a click/hash jump animates (smooth scroll), pin the panel to its
+       destination chapter so intermediate chapters don't flash past. */
+    var locked = null;
+    var lockTimer = null;
+    function update() { render(locked || currentByScroll()); }
+    function lockTo(chapter) {
+      locked = chapter;
+      render(chapter);
+      if (lockTimer) clearTimeout(lockTimer);
+      lockTimer = setTimeout(function () { locked = null; update(); }, 700);
+    }
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = a.getAttribute('href').slice(1);
+      lockTo(id ? chapterContaining(document.getElementById(id)) : null);
+    });
+
+    update();
+    /* Called directly (not via rAF): a backgrounded tab pauses rAF, which could
+       wedge a throttle lock; the few rect reads here are cheap enough. */
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    window.addEventListener('hashchange', update);
+  }
+
   /* Keep the searched term in the sidebar box after a search, and clear it only
      when the reader clicks "Hide Search Matches" (which Sphinx injects as
      `<p class="highlight-link">` inside #searchbox and which also unhighlights
@@ -145,49 +245,19 @@
     apply(current);
 
     fillSearchTerm();
+    fixLocalTocAnchors();
+    scopeLocalToc();
     wrapTables();
     window.addEventListener('resize', syncScrollability);
 
     var themeRoot = document.querySelector('.gs-theme');
     if (themeRoot) {
       var trigger = themeRoot.querySelector('.gs-theme__trigger');
-      var menu = themeRoot.querySelector('.gs-theme__menu');
-
-      var openMenu = function () {
-        menu.hidden = false;
-        trigger.setAttribute('aria-expanded', 'true');
-      };
-      var closeMenu = function () {
-        menu.hidden = true;
-        trigger.setAttribute('aria-expanded', 'false');
-      };
-
+      /* Click cycles Light -> Dark -> System -> Light. */
       trigger.addEventListener('click', function () {
-        if (menu.hidden) openMenu(); else closeMenu();
-      });
-
-      menu.addEventListener('click', function (e) {
-        var item = e.target.closest && e.target.closest('.gs-theme__item');
-        if (!item) return;
-        var value = item.getAttribute('data-theme-value');
-        if (STATES.indexOf(value) !== -1) {
-          current = value;
-          writeState(current);
-          apply(current);
-        }
-        closeMenu();
-        trigger.focus();
-      });
-
-      /* Dismiss on outside click or Escape. */
-      document.addEventListener('click', function (e) {
-        if (!menu.hidden && !themeRoot.contains(e.target)) closeMenu();
-      });
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && !menu.hidden) {
-          closeMenu();
-          trigger.focus();
-        }
+        current = STATES[(STATES.indexOf(current) + 1) % STATES.length];
+        writeState(current);
+        apply(current);
       });
     }
 

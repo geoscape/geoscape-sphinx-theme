@@ -715,6 +715,23 @@ div.sphinxsidebar .gs-nav__global .toctree-l4 a { padding-left: 3.0rem; font-siz
   background-color: transparent;
 }
 
+/* Multi-doc singlehtml: scopeLocalToc (geoscape.js) tags the in-view chapter
+   `gs-toc-active`; show only it, dropping its title (repeats the on-screen
+   heading) and surfacing its sections. no-JS builds keep the full list. */
+.gs-nav__local.gs-local-scoped > ul > li { display: none; }
+.gs-nav__local.gs-local-scoped > ul > li.gs-toc-active { display: block; }
+.gs-nav__local.gs-local-scoped > ul > li.gs-toc-active > a { display: none; }
+.gs-nav__local.gs-local-scoped > ul > li.gs-toc-active > ul {
+  margin-left: 0;
+  border-left: 0;
+}
+
+/* Section-less chapter: hide heading + panel rather than show a bare heading. */
+.gs-nav.gs-local-empty .gs-nav__heading--local,
+.gs-nav.gs-local-empty .gs-nav__local {
+  display: none;
+}
+
 /* External links list. No "Links" heading — a top border + spacing
    separates it from the nav above, matching the "On this page" separator
    (1.75rem margin-top + 1rem padding-top). Out-specify alabaster's
@@ -1432,10 +1449,13 @@ body {
     outline-offset: 2px;
 }
 
-/* "DOCS" in the signature blue — Stripe-style accented wordmark. */
-.gs-brand__docs {
-    color: var(--primary);
-    font-weight: 600;
+/* SVG wordmark: "Geoscape" paths inherit .gs-brand's currentColor, "Docs"
+   carries var(--primary) internally. Height drives the size; width auto keeps
+   the aspect ratio. display:block avoids the inline baseline gap. */
+.gs-brand__logo {
+    height: 28px;
+    width: auto;
+    display: block;
 }
 
 /* Below the phone breakpoint the wordmark would crowd the hub/theme controls,
@@ -1613,51 +1633,6 @@ div.bodywrapper {
    HTML `hidden` attribute can't be used — hence a class.) */
 .gs-theme__icon--hidden {
     display: none;
-}
-
-/* `display: flex` below overrides the browser's default `[hidden]{display:none}`,
-   so the menu would never hide — restore it explicitly. */
-.gs-theme__menu[hidden] {
-    display: none;
-}
-
-.gs-theme__menu {
-    position: absolute;
-    top: calc(100% + 6px);
-    right: 0;
-    z-index: 1;
-    min-width: 140px;
-    display: flex;
-    flex-direction: column;
-    padding: 4px;
-    background-color: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-}
-
-.gs-topbar .gs-theme__item {
-    display: block;
-    width: 100%;
-    text-align: left;
-    border: 0;
-    background-color: transparent;
-    color: var(--text);
-    font-family: var(--font-body);
-    font-size: 0.85em;
-    line-height: 1.2;
-    padding: 7px 10px;
-    border-radius: calc(var(--radius-md) - 2px);
-    cursor: pointer;
-}
-
-.gs-topbar .gs-theme__item:hover {
-    background-color: var(--bg-hover);
-}
-
-.gs-topbar .gs-theme__item[aria-checked="true"] {
-    background-color: var(--bg-hover);
-    font-weight: 600;
 }
 
 @media print {
