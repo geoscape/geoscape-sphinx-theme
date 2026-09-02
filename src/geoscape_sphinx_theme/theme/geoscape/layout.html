@@ -50,6 +50,9 @@
 {%- block relbar_top %}{%- if builder != 'singlehtml' %}{{ super() }}{%- endif %}{%- endblock %}
 {%- block relbar_bottom %}{%- if builder != 'singlehtml' %}{{ super() }}{%- endif %}{%- endblock %}
 
+{#- Mark singlehtml on <body> so CSS can target it (footer divider). -#}
+{%- block body_tag %}<body{% if builder == 'singlehtml' %} class="gs-singlehtml"{% endif %}>{%- endblock %}
+
 {%- block header %}
 <header class="gs-topbar" role="banner">
   <button type="button"
