@@ -215,6 +215,20 @@ div.body {
   max-width: var(--content-max-width);
 }
 
+/* Footer sits outside the content wrapper, so mirror the wrapper offset and the
+   body's inline padding to line its divider up with the content column. The
+   top border + spacing stop the last section blending into the footer. */
+div.footer {
+  margin: 3rem 0 0 var(--sidebar-width);
+  padding: 1.5rem var(--content-padding) 3rem;
+  /* Override alabaster's fixed `width: 940px` so the divider tracks the content
+     column: fill the width here, then cap it like div.body (see the
+     min-width:1441px rule below) so both share a right edge. */
+  width: auto;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
 /* RTD theme layout (in case theme switches) */
 .wy-nav-side {
   width: var(--sidebar-width);
@@ -1363,7 +1377,8 @@ dl.glossary dd {
    surplus width falls on the right rather than stretching prose edge-to-edge.
    Below 1441px the column simply fills the available width. */
 @media (min-width: 1441px) {
-  div.body {
+  div.body,
+  div.footer {
     max-width: var(--content-measure);
   }
 }
@@ -1485,7 +1500,8 @@ div.bodywrapper {
 /* Below the alabaster breakpoint (940px), reclaim the sidebar gutter so content uses full width */
 @media (max-width: 940px) {
     div.bodywrapper,
-    div.documentwrapper {
+    div.documentwrapper,
+    div.footer {
         margin-left: 0 !important;
     }
     div.body {
@@ -1549,7 +1565,8 @@ div.bodywrapper {
     }
 
     body[data-sidebar-collapsed] div.bodywrapper,
-    body[data-sidebar-collapsed] div.documentwrapper {
+    body[data-sidebar-collapsed] div.documentwrapper,
+    body[data-sidebar-collapsed] div.footer {
         margin-left: 0 !important;
     }
 

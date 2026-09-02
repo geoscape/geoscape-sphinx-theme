@@ -45,6 +45,11 @@
 {%- endif %}
 {%- endblock %}
 
+{#- singlehtml stitches every doc onto one page, so there are no prev/next
+    relations — alabaster's relbars render empty. Drop them for that builder only. -#}
+{%- block relbar_top %}{%- if builder != 'singlehtml' %}{{ super() }}{%- endif %}{%- endblock %}
+{%- block relbar_bottom %}{%- if builder != 'singlehtml' %}{{ super() }}{%- endif %}{%- endblock %}
+
 {%- block header %}
 <header class="gs-topbar" role="banner">
   <button type="button"
