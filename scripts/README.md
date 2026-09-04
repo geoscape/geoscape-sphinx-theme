@@ -56,6 +56,24 @@ Automated rollout via scripts/apply-theme.py.
   contains and how the undo works. For a plain-text transcript, pipe a run
   through `tee` (see below).
 
+## Run outcomes
+
+Every branch ends a run with one status. The decision is content-based: the
+script re-applies the transform to the branch's *current* files and looks at
+whether that produces any diff.
+
+| Status | Meaning |
+| --- | --- |
+| `MIGRATED` | The transform produced a diff (something still needed changing) — so it committed + pushed the theme-adoption edit (or `would`, in dry-run). |
+| `ALREADY` | The transform produced no diff — the branch already consumes the theme, so it's left untouched. |
+| `SKIPPED` | Not a docs tree (no `docs/source/conf.py` + `requirements.txt`), or the whole repo has a dirty worktree. |
+| `FAILED` | The edited `conf.py` wouldn't parse (compile-gate), or the commit/push errored. The branch is left untouched. |
+
+`MIGRATED` and `ALREADY` both mean the branch is on the theme afterwards — the
+only difference is whether *this run* had work to do. That's why re-running is
+safe: a second pass over a `MIGRATED` branch produces no diff and flips it to
+`ALREADY`.
+
 ## Prerequisites
 
 - Run **locally** from anywhere; scripts default to scanning the parent
@@ -119,6 +137,11 @@ branch it compares `origin/<branch>`'s current tip to `after_sha`:
 
 That check is why `--manifest` is required: it tells rollback *which* exact
 commit to reverse and *whether it's still safe* to do so.
+
+Re-applying after a rollback just works: the revert restores the pre-theme
+files, so a fresh `apply-theme.py --apply` sees old-style config again and
+re-migrates the branch (reported `MIGRATED`, not `ALREADY`) — idempotency is
+decided from the branch's current content, not its commit history.
 
 ```bash
 # 1. Dry-run — see what would be reverted, writes nothing:
