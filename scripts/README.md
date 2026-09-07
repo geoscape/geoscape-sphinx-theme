@@ -162,4 +162,7 @@ scripts/rollback-theme.py --manifest scripts/logs/apply-theme-<UTC>.jsonl
 scripts/rollback-theme.py --manifest scripts/logs/apply-theme-<UTC>.jsonl --apply --yes
 ```
 
-Scope it the same way as apply: `--repo <name>` and `--branch '<glob>'`.
+Scope it the same way as apply: `--repo <name>` and `--branch '<glob>'`. A
+revert push triggers an RTD build like any other commit, so `--sleep <seconds>`
+is available here too — use it if you ever wholesale-revert a high-active-branch
+repo; scoped rollbacks (a single repo/branch) don't need it.

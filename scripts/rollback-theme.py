@@ -33,6 +33,7 @@ import fnmatch
 import json
 import subprocess
 import sys
+import time
 from collections import defaultdict
 from pathlib import Path
 
@@ -111,7 +112,8 @@ def revert_on_branch(repo: Path, branch: str, target_sha: str, apply: bool) -> s
 
 
 def process_repo_manifest(repo: Path, entries: list[dict], apply: bool,
-                          branch_glob: str | None) -> dict[str, int]:
+                          branch_glob: str | None,
+                          sleep: float = 0.0) -> dict[str, int]:
     name = repo.name
     tally: dict[str, int] = {}
 
@@ -148,7 +150,13 @@ def process_repo_manifest(repo: Path, entries: list[dict], apply: bool,
                         f"commit {after[:9]} — not auto-reverting{RESET}", YELLOW)
                     bump("MANUAL")
                 continue
-            bump(revert_on_branch(repo, b, after, apply))
+            st = revert_on_branch(repo, b, after, apply)
+            bump(st)
+            # throttle: a revert push triggers an RTD build like any other
+            # commit, so space them out (org-wide build concurrency).
+            if st == "REVERTED" and sleep > 0:
+                log(f"  {DIM}sleeping {sleep:g}s before next push{RESET}")
+                time.sleep(sleep)
     finally:
         git(repo, "checkout", original, check=False)
     return tally
@@ -179,6 +187,11 @@ def main():
                     help="actually revert + push (default: dry-run)")
     ap.add_argument("--yes", action="store_true",
                     help="skip the interactive confirmation for --apply")
+    ap.add_argument("--sleep", type=float, default=0.0, metavar="SECONDS",
+                    help="pause this many seconds after each revert push, to "
+                         "keep RTD's shared build queue from spiking when "
+                         "rolling back a repo with many active branches. "
+                         "Default: 0 (no pause). Ignored in dry-run.")
     args = ap.parse_args()
 
     root = Path(args.dir).resolve()
@@ -208,7 +221,8 @@ def main():
             log(f"\n{YELLOW}SKIP {repo_name}: not cloned at {repo}{RESET}", YELLOW)
             total["SKIPPED"] = total.get("SKIPPED", 0) + 1
             continue
-        rt = process_repo_manifest(repo, by_repo[repo_name], args.apply, args.branch)
+        rt = process_repo_manifest(repo, by_repo[repo_name], args.apply,
+                                   args.branch, args.sleep)
         for k, v in rt.items():
             total[k] = total.get(k, 0) + v
 
