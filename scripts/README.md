@@ -97,16 +97,27 @@ scripts/apply-theme.py
 # 2. Do one repo, then review its built pages before continuing:
 scripts/apply-theme.py --apply --yes --repo docs_cadastre_guide
 
-# 3. A batch:
+# 3. A batch of small repos:
 scripts/apply-theme.py --apply --yes --repos docs_lga_guide,docs_wards_guide
 
-# 4. Everything at once (keep a transcript with tee):
-scripts/apply-theme.py --apply --yes | tee scripts/logs/apply-$(date -u +%Y%m%dT%H%M%SZ).log
+# 4. A big repo with many active branches — throttle pushes so RTD's shared
+#    build queue doesn't spike (see below):
+scripts/apply-theme.py --apply --yes --repo docs_cadastre_release --sleep 60
 ```
 
 Scope flags: `--repo <name>` (repeatable), `--repos a,b,c`, `--branch '<glob>'`
-(e.g. `--branch master` or `--branch 'DEC-*'`). Ctrl-C stops cleanly — the
+(e.g. `--branch stable` or `--branch 'AUG-*'`). Ctrl-C stops cleanly — the
 manifest is flushed per branch, so a re-run resumes where you left off.
+
+**`--sleep <seconds>`** pauses after each push. RTD's build concurrency is a
+single **org-wide** pool (shared across every `docs_*` project), and it builds
+every push to an *active* version. A repo with many active branches (the big
+`_release` repos have 30+ monthly-snapshot versions) therefore fires 30+ builds
+in one burst, which queues behind the shared limit and starves other projects'
+builds until it drains. `--sleep 60` spaces those pushes to roughly the rate
+builds free up (~one slot per ~45s at 4 concurrent), keeping the queue shallow.
+Use it only on the high-active-branch repos; it's pointless (and just slows you
+down) on repos with only `latest`/`stable` active, and it's ignored in dry-run.
 
 ### Rolling back
 

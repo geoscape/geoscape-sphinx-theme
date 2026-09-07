@@ -50,6 +50,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -281,7 +282,8 @@ def write_branch_edits(repo: Path, conf_new: str, reqs_new: str, has_old_css: bo
 
 
 # --- per-repo processing ----------------------------------------------------
-def process_repo(repo: Path, apply: bool, branch_glob: str | None) -> dict[str, int]:
+def process_repo(repo: Path, apply: bool, branch_glob: str | None,
+                 sleep: float = 0.0) -> dict[str, int]:
     """Process every (matching) remote branch of one repo.
     Returns a tally dict for this repo."""
     name = repo.name
@@ -378,6 +380,11 @@ def process_repo(repo: Path, apply: bool, branch_glob: str | None) -> dict[str, 
                 "pushed": pushed,
                 "ts": datetime.now(timezone.utc).isoformat(),
             })
+            # throttle: space out pushes so RTD's shared build queue (org-wide
+            # concurrency) doesn't spike. Only meaningful after a real push.
+            if pushed and sleep > 0:
+                log(f"      {DIM}sleeping {sleep:g}s before next push{RESET}")
+                time.sleep(sleep)
     finally:
         # restore the repo to where we found it — only if we moved HEAD (apply)
         if needs_restore:
@@ -448,6 +455,11 @@ def main():
                     help="actually write, commit and push (default: dry-run)")
     ap.add_argument("--yes", action="store_true",
                     help="skip the interactive confirmation for --apply")
+    ap.add_argument("--sleep", type=float, default=0.0, metavar="SECONDS",
+                    help="pause this many seconds after each push, to keep "
+                         "RTD's shared build queue from spiking on repos with "
+                         "many active branches (e.g. 60 for the big _release "
+                         "repos). Default: 0 (no pause). Ignored in dry-run.")
     args = ap.parse_args()
 
     root = Path(args.dir).resolve()
@@ -496,7 +508,7 @@ def main():
                 total["SKIPPED"] = total.get("SKIPPED", 0) + 1
                 continue
             try:
-                rt = process_repo(repo, args.apply, args.branch)
+                rt = process_repo(repo, args.apply, args.branch, args.sleep)
             except subprocess.CalledProcessError as e:
                 log(f"  {RED}FAILED{RESET} {repo.name}: git error: "
                     f"{e.stderr.strip()}", RED)
